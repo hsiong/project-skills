@@ -1,0 +1,7 @@
+interface:
+  display_name: "提交拆分助手"
+  short_description: "按功能链路拆分中文 Git 提交"
+  default_prompt: "Use $commit to inspect the current workspace, split changes into multiple safe commits, and write concise Chinese conventional commit messages."
+
+policy:
+  allow_implicit_invocation: true
