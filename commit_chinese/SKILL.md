@@ -1,6 +1,6 @@
 ---
-name: commit
-description: 当用户说“日常commit”或类似指令时使用。该技能负责在当前 Git 工作区内，仅基于 Git 已知文件完成多次提交：提交信息必须是中文、遵循 GitHub/Conventional Commits 风格、按完整功能链路分组而不是按代码模块分组，并按改动量从大到小排序。严禁访问未加入 Git 的文件，严禁读取或提交 `*/application.yml`、`*/application-*.yml`、`.fastRequest/*`、`.mvn/*`、`.idea/*`、`config/.env.*` 以及 `.gitignore` 涉及的内容；严禁擅自修改用户代码；完成后必须汇总总改动行数。
+name: commit_chinese
+description: 当用户说“日常commit”“中文commit”或类似指令时使用。该技能负责在当前 Git 工作区内，仅基于 Git 已知文件完成多次提交：提交信息必须是中文、遵循 GitHub/Conventional Commits 风格、按完整功能链路分组而不是按代码模块分组，并按改动量从大到小排序。严禁访问未加入 Git 的文件，严禁读取或提交 `*/application.yml`、`*/application-*.yml`、`.fastRequest/*`、`.mvn/*`、`.idea/*`、`config/.env.*` 以及 `.gitignore` 涉及的内容；严禁擅自修改用户代码；完成后必须汇总总改动行数。
 ---
 
 # Commit
