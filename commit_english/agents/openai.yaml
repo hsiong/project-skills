@@ -1,7 +1,7 @@
 interface:
   display_name: "English Commit Splitter"
-  short_description: "Split Git changes into English commits by flow"
-  default_prompt: "Use $commit_english to split the current Git-known changes into safe English conventional commits by functional flow and summarize the results."
+  short_description: "Split Git changes into clear English commits"
+  default_prompt: "Use $commit_english to split Git-known changes by functional flow and add concrete bullet bodies when one commit contains multiple coordinated subchanges."
 
 policy:
   allow_implicit_invocation: true
