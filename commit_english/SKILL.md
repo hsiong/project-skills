@@ -71,7 +71,7 @@ git status --short --untracked-files=no
 
 ## 提交信息要求
 
-- 全部使用中文。
+- 全部使用英文。
 - 符合 GitHub 常见提交规范，优先使用：`feat`、`fix`、`docs`、`refactor`、`style`、`test`、`chore`、`build`、`ci`、`perf`。
 - 标题简单直接具体，不写文件名，不写序号。
 - 使用短横线列点，不要编号。
