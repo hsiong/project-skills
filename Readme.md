@@ -1,3 +1,5 @@
+# Codex-skills
+
 
 > + Globle dir: ~/.agents/skills
 > + Repo dir: project/.agents/skills
@@ -271,3 +273,11 @@ If you want, I can give you a **ready-to-use skill template** for your own case,
 - Python data pipeline
 - content generation compliance check
 - OpenClaw / Codex workflow automation
+
+# Other
+
+## Share Skills
+> !!! tip: ~/.agents   !!!  not ~/.agent
+- **Codex** documents `~/.agents/skills` as one of its skill discovery locations. It also says Codex supports symlinked skill folders. 
+- **Gemini CLI** also documents `~/.agents/skills` and `.agents/skills` as supported skill directories, alongside its own `~/.gemini/skills` and `.gemini/skills`. 
+
