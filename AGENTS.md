@@ -12,6 +12,8 @@
     - what the skill handles
     - when it should trigger
     - when it should not trigger
-    - expected input/output or success criteria
     - a few natural trigger phrases users would actually say
-8. **Also not ideal:** dumping all functionality into the description
+8. **description should not include:** 
+   - dumping all functionality 
+   - expected input/output 
+   - success criteria
