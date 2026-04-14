@@ -1,0 +1,7 @@
+interface:
+  display_name: "Commit Splitter"
+  short_description: "Split workspace changes into safe English commits"
+  default_prompt: "Use $commit_english to inspect the current workspace, split changes into multiple safe commits, and write concise English conventional commit messages."
+
+policy:
+  allow_implicit_invocation: true
