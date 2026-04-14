@@ -1,6 +1,6 @@
 ---
 name: github-issue-generator
-description: "当用户要“生成 GitHub issue”“先查重再写 issue”或“按仓库模板起 issue”时使用。它会先联网检查目标仓库是否已有相似 issue，再按仓库模板或通用结构生成英文 Markdown 草稿；不用于默认直接提交远程 issue，除非用户明确要求。成功标准是优先避免重复，必要时输出可直接发布的 issue 草稿。"
+description: "当用户要生成 GitHub issue 时触发，例如“先查重再写 issue”“按仓库模板起 issue”“帮我生成 issue 草稿”。它负责联网查重并按仓库模板或通用结构生成英文 Markdown 草稿；不用于默认直接提交远程 issue，除非用户明确要求。"
 ---
 
 # GitHub Issue Generator
