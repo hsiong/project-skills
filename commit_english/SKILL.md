@@ -1,6 +1,6 @@
 ---
 name: "commit_english"
-description: "Use when the user says \"English commit\", \"english commit\", \"commit\", or similar. This skill completes multiple commits in the current Git workspace using only Git-known files: commit messages must be in English, follow GitHub/Conventional Commits style, be grouped by complete functional flow rather than by code module, and be committed from the largest change set to the smallest. It is strictly forbidden to access files not added to Git, and strictly forbidden to read or commit `*/application.yml`, `*/application-*.yml`, `.fastRequest/*`, `.mvn/*`, `.idea/*`, `config/.env.*`, or anything mentioned in `.gitignore`; it is also strictly forbidden to modify user code without permission; the total changed lines must be summarized after completion."
+description: "Use when the user says \"English commit\", \"english commit\", \"commit\", or similar. This skill completes multiple commits in the current Git workspace using only Git-known files: commit messages must be in English, follow GitHub/Conventional Commits style, be grouped by complete functional flow rather than by code module, and never mix independent changes in one commit. Commits must be ordered from the largest change set to the smallest. It is strictly forbidden to access files not added to Git, and strictly forbidden to read or commit `*/application.yml`, `*/application-*.yml`, `.fastRequest/*`, `.mvn/*`, `.idea/*`, `config/.env.*`, or anything mentioned in `.gitignore`; it is also strictly forbidden to modify user code without permission; the total changed lines must be summarized after completion."
 ---
 
 # Commit
@@ -56,10 +56,14 @@ git status --short --untracked-files=no
 ## Grouping Rules
 
 - Use a complete functional flow as one commit unit. Do not split by code directory, layered module, or technical component.
+- One commit must correspond to one concrete task or one user intent. If the summary naturally contains "and", treat that as a warning sign that the changes should probably be split.
 - If the same business function involves `controller`, `service`, `impl`, `feign`, `dto`, tests, and documentation, prefer grouping them into the same commit.
+- Documentation, examples, prompts, tests, or metadata may be grouped with code only when they are directly supporting that exact same function. If they introduce a second topic, they must be split out.
+- README updates, repository guidance, or cross-skill documentation must not be mixed into a feature commit unless they are strictly describing that same single feature and nothing else.
 - When multiple functions coexist, commit them in order from the largest change set to the smallest.
 - Estimate change size by the total added and deleted lines in each functional group, prioritizing `git diff --numstat` and `git diff --stat`.
 - Documentation, style, build, config, test, and similar changes may be committed separately only when they form an independent functional flow.
+- When uncertain between one commit and multiple commits, prefer splitting into smaller independent commits rather than mixing unrelated work.
 
 ## Commit Message Requirements
 
@@ -85,6 +89,7 @@ docs: document the automated group creation flow
 
 ## Output Requirements
 
+- Before committing, explicitly check that each planned commit contains only one independent topic.
 - Before committing: list the planned functional groups from the largest change set to the smallest. Do not include file names and do not add numbering.
 - After committing: provide the actual commit results and list each commit message in commit order.
 - Finally summarize the total changed lines. Recommended format:
