@@ -281,3 +281,10 @@ If you want, I can give you a **ready-to-use skill template** for your own case,
 - **Codex** documents `~/.agents/skills` as one of its skill discovery locations. It also says Codex supports symlinked skill folders. 
 - **Gemini CLI** also documents `~/.agents/skills` and `.agents/skills` as supported skill directories, alongside its own `~/.gemini/skills` and `.gemini/skills`. 
 
+## parallel skills 
+
+Codex starts with the metadata for **all available skills** (`name`, `description`, path), and then loads the full `SKILL.md` only for the skills it decides to use. It can activate skills either **explicitly** when you mention them, or **implicitly** when your task matches their descriptions. 
+
+So in your example, when generating Java code, Codex may use both a general **Java style** skill and a narrower **Java Feign** skill in the same task if both are relevant. But the docs do **not** say “every matching skill will always be combined,” and they do not define a strict precedence or merge order for overlapping skills. What is documented is the routing model: metadata for all skills is available up front, and full instructions are loaded only when Codex chooses a skill. 
+
+Also, this is **not the same thing as parallel subagents**. In Codex, true parallel work is a **subagent** feature, and subagents are only spawned when you explicitly ask for them. Skills are better thought of as reusable instruction bundles that the main agent may apply during the run. 
