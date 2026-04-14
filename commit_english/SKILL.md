@@ -1,47 +1,47 @@
 ---
-name: "commit_english"
-description: "Use this skill when the user asks for English Git commits, such as \"English commit\", \"commit this\", or \"split these commits\". It handles only allowed Git-known changes, splits independent work into separate English Conventional Commits, and adds a concrete commit body when one commit covers multiple coordinated subchanges; do not use it to edit code, inspect untracked files, or include restricted paths. Success means the workspace is committed safely by functional flow with clear commit messages and changed-line totals."
+name: commit_english
+description: "当用户要按功能做英文Git 提交时触发，例如“英文commit”“commit”。它处理当前工作区内允许访问的 Git 已知改动；不用于改代码、访问未跟踪文件或提交受限路径。"
 ---
 
 # Commit
 
-## Applicable Scenarios
+## 适用场景
 
-- The user wants you to commit the current workspace directly.
-- The user wants you to split the work into multiple commits by function.
-- The user wants you to generate English commit messages and execute the commits.
+- 用户要你直接提交当前工作区。
+- 用户要你按业务功能拆分为多次提交。
+- 用户要你生成英文commit message 并执行提交。
 
-## Hard Constraints
+## 强约束
 
-- Only perform commit-related operations. Do not modify user code, fix issues on the side, or clean up formatting.
-- Only inspect Git-known paths: tracked changes, staged new files, and staged deletions. Truly untracked files must never be accessed.
-- Never use commands such as `git add .`, `git add -A`, or `git commit -a` that would broaden the scope.
-- Never read or commit the following content:
+- 只做提交相关操作，不改用户代码，不顺手修问题，不整理格式。
+- 只允许查看 Git 已知路径：已跟踪改动、已暂存新增、已暂存删除。真正未跟踪文件一律不访问。
+- 禁止使用 `git add .`、`git add -A`、`git commit -a` 这类会扩大范围的命令。
+- 禁止读取或提交以下内容：
   - `*/application.yml`
   - `*/application-*.yml`
   - `.fastRequest/*`
   - `.mvn/*`
   - `.idea/*`
   - `config/.env.*`
-  - Anything mentioned in `.gitignore`
-- Read `.gitignore`. Do not access or commit anything mentioned in `.gitignore`.
-- Files that have not been added to Git management must never be accessed.
+  - `.gitignore` 中提到的内容
+- 读取 `.gitignore`。禁止访问和提交 .gitignore 内提到的内容
+- 没有加入到 git 管理中的文件，禁止你访问
 
-## Safe Workflow
+## 安全工作流
 
-1. Record the baseline commit first:
+1. 先记录基线提交：
 
 ```bash
 BASE_HEAD=$(git rev-parse HEAD)
 ```
 
-2. Inspect only Git-known changes and hide untracked files:
+2. 只查看 Git 已知改动，隐藏未跟踪文件：
 
 ```bash
 git status --short --untracked-files=no
 ```
 
-3. All `diff`, `stat`, and `name-only` commands must include exclusion rules to avoid restricted paths. Reuse the following pathspec:
+3. 所有 diff、stat、name-only 命令都必须附带排除规则，禁止碰禁区路径。可复用下面这组 pathspec：
 
 ```bash
 -- . \
@@ -53,68 +53,51 @@ git status --short --untracked-files=no
 ':(glob,exclude)**/config/.env.*'
 ```
 
-## Grouping Rules
+## 分组规则
 
-- Use a complete functional flow as one commit unit. Do not split by code directory, layered module, or technical component.
-- One commit must correspond to one concrete task or one user intent. If the summary naturally contains "and", treat that as a warning sign that the changes should probably be split.
-- Changes to different peer features, skills, or modules are independent by default, even if they are all docs, prompts, or metadata updates.
-- Only keep multiple peer targets in one commit when they are the same coordinated standards update applied consistently across those targets.
-- If several peer targets stay in one commit, the commit message body must list the concrete subchanges. A vague umbrella title alone is not acceptable.
-- If the same business function involves `controller`, `service`, `impl`, `feign`, `dto`, tests, and documentation, prefer grouping them into the same commit.
-- Documentation, examples, prompts, tests, or metadata may be grouped with code only when they are directly supporting that exact same function. If they introduce a second topic, they must be split out.
-- README updates, repository guidance, or cross-skill documentation must not be mixed into a feature commit unless they are strictly describing that same single feature and nothing else.
-- When multiple functions coexist, commit them in order from the largest change set to the smallest.
-- Estimate change size by the total added and deleted lines in each functional group, prioritizing `git diff --numstat` and `git diff --stat`.
-- Documentation, style, build, config, test, and similar changes may be committed separately only when they form an independent functional flow.
-- When uncertain between one commit and multiple commits, prefer splitting into smaller independent commits rather than mixing unrelated work.
+- 不同文件尽量分成不同的提交
+  - 纯文档、样式、构建、配置、测试等若形成独立功能，可单独提交
+  - 难以判断该合并还是拆分时，优先拆成更小的独立提交，而不是混入无关改动。
+  - 除非同一个文件涉及了多个变更，提交正文必须逐条写出具体变更，比如集成的具体接口或者具体的单表业务等等。
+- 代码按同一业务功能，进行一次提交：
+  - 同一业务功能必须是同一个颗粒度非常细的具体业务，比如 `集成一个三方接口`或者`单表CRUD` 涉及到的 `controller`、`service`、`impl`、`feign`、`dto`、测试、文档等都属于同一业务。
+  - 接入多个三方接口或者多表CURD或者不同业务模块，不能视为同一业务
+  - 使用了 `/`、`和`、`及`、`以及`、`并`、`等`，不能视为同一业务
+- 多个功能并存时，按改动量从大到小排序后依次提交。
+- 改动量以该功能分组的增删行总数估算，优先看 `git diff --numstat` 和 `git diff --stat`。
 
-## Commit Message Requirements
+## 提交信息要求
 
-- Use English only.
-- Follow common GitHub commit conventions. Prefer: `feat`, `fix`, `docs`, `refactor`, `style`, `test`, `chore`, `build`, `ci`, `perf`.
-- Keep the title as short, direct, and actionable as possible. Do not include file names and do not include sequence numbers.
-- If a single-line title is not enough to express the change, add a short body; use hyphen bullets in the body and do not use numbering.
-- When one commit covers multiple coordinated subchanges under the same main flow, a bullet body is required and each bullet must describe one concrete subchange.
-- Titles like `chore: refresh skill descriptions and prompts` are incomplete on their own when multiple skills or modules were updated; either split the commits or add bullets such as `- refresh commit_chinese description`.
-- If the required bullet list starts describing separate intentions instead of one coordinated flow, split the work into multiple commits.
-- Do not split low-level technical layers into multiple points. Prefer describing the complete business action.
+- 全部使用中文。
+- 符合 GitHub 常见提交规范，优先使用：`feat`、`fix`、`docs`、`refactor`、`style`、`test`、`chore`、`build`、`ci`、`perf`。
+- 标题简单直接具体，不写文件名，不写序号。
+- 使用短横线列点，不要编号。
 
-Examples:
+示例：
 
 ```text
-feat: add internal app access token support
+feat: 新增企业内部应用 accessToken 获取能力
 ```
++ 同一个文件
+```text
+docs: 完善自动建群功能说明
+
+- 补充群管理权限申请说明
+- 补充手机号查 userId 注意事项说明
+- 补充建群并关联机器人流程说明
+```
+
+## 输出要求
+
+- 提交后：按提交顺序列出每条 commit 的原始文本。
+- 最后汇总总改动行数，推荐格式：
 
 ```text
-docs: document the automated group creation flow
-
-- add the group management permission application notes
-- add the phone number to userId lookup caveats
-- add the group creation and bot binding flow
+总计改动 123 行（+100 / -23）
 ```
 
-```text
-chore: align skill metadata wording
+## 失败处理
 
-- refresh commit_chinese description and default prompt
-- refresh commit_english description and default prompt
-- tighten Java and Python skill summaries for minimal-change guidance
-```
-
-## Output Requirements
-
-- Before committing, explicitly check that each planned commit contains only one independent topic.
-- Before committing, explicitly decide whether each planned commit can stand as a title-only commit or requires a bullet body.
-- Before committing: list the planned functional groups from the largest change set to the smallest. Do not include file names and do not add numbering.
-- After committing: provide the actual commit results and list each commit message in commit order.
-- Finally summarize the total changed lines. Recommended format:
-
-```text
-Total changed lines: 123 (+100 / -23)
-```
-
-## Failure Handling
-
-- If untracked files may affect the judgment, ignore them and do not access their contents.
-- If there are changes under restricted paths, clearly state that those changes were excluded and were not included in the commits.
-- If it is impossible to split commits safely without violating the constraints, stop execution and explain the reason to the user.
+- 若发现未跟踪文件可能影响判断，忽略它们，不访问其内容。
+- 若禁区路径中存在改动，明确说明这些内容被排除，不纳入提交。
+- 若无法在不违反约束的前提下安全拆分提交，停止执行并向用户说明原因。
