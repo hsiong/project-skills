@@ -1,7 +1,7 @@
 interface:
   display_name: "提交拆分助手"
   short_description: "按功能链路安全拆分中文 Git 提交"
-  default_prompt: "Use $commit_chinese to split the current Git-known changes into safe Chinese conventional commits by functional flow and summarize the results."
+  default_prompt: "Use $commit_chinese to split Git-known changes into safe Chinese conventional commits by functional flow, add bullet bodies when one commit contains multiple coordinated subchanges, and summarize the results."
 
 policy:
   allow_implicit_invocation: true
