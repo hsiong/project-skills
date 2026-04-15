@@ -184,7 +184,7 @@ def main() -> int:
     require_binary("gnome-screenshot")
 
     timestamp = time.strftime("%Y%m%d_%H%M%S")
-    out_dir = Path(args.out_dir) if args.out_dir else Path.cwd() / "tmp" / f"chrome_capture_{timestamp}"
+    out_dir = Path(args.out_dir) if args.out_dir else Path.cwd() / "tmp" / f"chrome_extractor_rn_{timestamp}"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     before_ids = {window.window_id for window in list_chrome_windows()}
