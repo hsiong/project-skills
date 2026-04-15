@@ -101,7 +101,7 @@ public Result<OrderDetailVO> getOrderDetail(@Validated @RequestBody OrderDetailR
 - 禁止访问任何 `application-*.yml` 文件，但可以访问 `application.yml`
 - 注意，代码中使用的配置项要与 `application.yml` 配置一致, 如 `${xxx}`, `@ConfigurationProperties` 等
 - 如需新增配置项，默认把配置项加入 `application.yml`, 并引用 `${config.xxx.xxx}`
-- `${config.xxx}`，直接在 terminal 日志中打印新增 key 和建议值。
+- 新增的`${config.xxx}`无需写在配置文件里，直接在 terminal 日志中打印新增 key 和建议值。
 - 打印时优先给出可直接复制的配置片段，保持 key 层级完整。
 
 ## 生成代码时的执行方式
@@ -113,3 +113,6 @@ public Result<OrderDetailVO> getOrderDetail(@Validated @RequestBody OrderDetailR
 - 如需在“减少重复”与“保持直观”之间取舍，优先选择更直观、改动更小的实现。
 - 生成 request DTO 时，同步补齐 `@Schema`、必填校验注解和 `message`。
 - 生成 controller 时，同步检查是否满足 `@Operation`、Post 优先、查询接口 `getXXX`、`Result` 返回这几项约束。
+
+
+
