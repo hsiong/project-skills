@@ -61,6 +61,18 @@ class XephyrSessionState:
     created_at: str
 
 
+@dataclass
+class ExpandReplyTarget:
+    x: int
+    y: int
+    min_y: int
+    max_y: int
+    min_x: int
+    max_x: int
+    is_occluded: bool
+    occlusion_reason: str
+
+
 def run(cmd: list[str], check: bool = True, capture: bool = True) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         cmd,
@@ -452,7 +464,7 @@ def connected_components(mask: np.ndarray) -> list[tuple[int, int, int, int]]:
     return components
 
 
-def find_expand_reply_targets(path: Path) -> list[tuple[int, int]]:
+def find_expand_reply_targets(path: Path) -> list[ExpandReplyTarget]:
     image = load_rgb_image(path)
     height, width, _ = image.shape
     x0 = int(width * 0.62)
@@ -504,10 +516,28 @@ def find_expand_reply_targets(path: Path) -> list[tuple[int, int]]:
             )
             continue
         merged.append(candidate)
-    return [
-        (x0 + (min_x + max_x) // 2, y0 + (min_y + max_y) // 2)
-        for min_y, max_y, min_x, max_x in merged
-    ]
+    targets: list[ExpandReplyTarget] = []
+    top_guard = max(14, int(crop_height * 0.03))
+    bottom_guard = max(18, int(crop_height * 0.04))
+    for min_y, max_y, min_x, max_x in merged:
+        occlusion_reason = ""
+        if min_y <= top_guard:
+            occlusion_reason = "top"
+        elif max_y >= crop_height - bottom_guard:
+            occlusion_reason = "bottom"
+        targets.append(
+            ExpandReplyTarget(
+                x=x0 + (min_x + max_x) // 2,
+                y=y0 + (min_y + max_y) // 2,
+                min_y=y0 + min_y,
+                max_y=y0 + max_y,
+                min_x=x0 + min_x,
+                max_x=x0 + max_x,
+                is_occluded=bool(occlusion_reason),
+                occlusion_reason=occlusion_reason,
+            )
+        )
+    return targets
 
 
 class XController:
@@ -613,6 +643,22 @@ class XController:
             self.lib_x11.XSync(self.display, 0)
             time.sleep(0.12)
 
+    def scroll_up(self, steps: int, x: int | None = None, y: int | None = None) -> None:
+        if x is not None and y is not None:
+            self.move_pointer(x, y)
+        if self.backend == "python-xlib":
+            for _ in range(steps):
+                self.xtest.fake_input(self.display, self.X.ButtonPress, 4)
+                self.xtest.fake_input(self.display, self.X.ButtonRelease, 4)
+                self.display.sync()
+                time.sleep(0.12)
+            return
+        for _ in range(steps):
+            self.lib_xtst.XTestFakeButtonEvent(self.display, 4, 1, 0)
+            self.lib_xtst.XTestFakeButtonEvent(self.display, 4, 0, 0)
+            self.lib_x11.XSync(self.display, 0)
+            time.sleep(0.12)
+
 
 def comment_panel_point(geometry: dict[str, int], y_ratio: float = 0.72) -> tuple[int, int]:
     return (
@@ -630,20 +676,39 @@ def expand_visible_reply_links(
 ) -> int:
     probe_path = screenshot_dir / f"_expand_probe_{screenshot_index}.png"
     click_targets: list[tuple[int, int]] = []
+    skipped_targets: list[tuple[int, int]] = []
+    retried_targets: list[tuple[str, int]] = []
     attempts = 0
-    while attempts < 8:
+    scan_rounds = 0
+    while attempts < 8 and scan_rounds < 24:
+        scan_rounds += 1
         save_window_screenshot(window_id, probe_path)
         targets = find_expand_reply_targets(probe_path)
-        next_target = None
-        for target_x, target_y in targets:
-            if any(abs(target_x - clicked_x) <= 14 and abs(target_y - clicked_y) <= 10 for clicked_x, clicked_y in click_targets):
+        next_target: ExpandReplyTarget | None = None
+        for target in targets:
+            if any(abs(target.x - clicked_x) <= 14 and abs(target.y - clicked_y) <= 10 for clicked_x, clicked_y in click_targets):
                 continue
-            next_target = (target_x, target_y)
+            if any(abs(target.x - skipped_x) <= 20 and abs(target.y - skipped_y) <= 18 for skipped_x, skipped_y in skipped_targets):
+                continue
+            next_target = target
             break
         if next_target is None:
             break
-        controller.click(geometry["x"] + next_target[0], geometry["y"] + next_target[1])
-        click_targets.append(next_target)
+        if next_target.is_occluded:
+            retry_key = (next_target.occlusion_reason, next_target.y // 48)
+            scroll_x, scroll_y = comment_panel_point(geometry, y_ratio=0.72)
+            if retry_key in retried_targets:
+                skipped_targets.append((next_target.x, next_target.y))
+                continue
+            retried_targets.append(retry_key)
+            if next_target.occlusion_reason == "top":
+                controller.scroll_up(3, x=scroll_x, y=scroll_y)
+            else:
+                controller.scroll_down(3, x=scroll_x, y=scroll_y)
+            time.sleep(0.7)
+            continue
+        controller.click(geometry["x"] + next_target.x, geometry["y"] + next_target.y)
+        click_targets.append((next_target.x, next_target.y))
         attempts += 1
         time.sleep(0.9)
     probe_path.unlink(missing_ok=True)

@@ -94,7 +94,7 @@ Linux Mint 22 X11 session handling:
 
 Optional arguments:
 
-- `--out-dir <dir>`: custom output directory
+- `--out-dir <dir>`: custom output directory, default is None
 - `--wait-seconds <n>`: extra wait after opening URL
 - `--window-hint <text>`: prefer a Chrome window whose title contains this text
 - `--skip-comment-scroll`: only capture the initial screen
