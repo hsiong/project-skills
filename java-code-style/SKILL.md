@@ -120,6 +120,8 @@ public Result<OrderDetailVO> getOrderDetail(@Validated @RequestBody OrderDetailR
 - 生成 request DTO 时，同步补齐 `@Schema`、必填校验注解和 `message`。
 - 生成 controller 时，同步检查是否满足 `@Operation`、Post 优先、查询接口 `getXXX`、`Result` 返回这几项约束。
 - 除非用户明确要求，直接修改相关代码即可
+- 使用框架内已有的日志工具，在关键节点 加入 日志打印
+- 缩进使用 tab
 
 
 
