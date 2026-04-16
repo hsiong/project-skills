@@ -9,6 +9,7 @@ import html
 import json
 import mimetypes
 import os
+import random
 import re
 import shutil
 import subprocess
@@ -90,6 +91,28 @@ class ChunkResult(TypedDict):
 	互动数据: str
 	图片: list[str]
 	视频: list[str]
+
+
+def randomize_delay(base_seconds: float,
+		jitter_ratio: float = 0.35,
+		min_seconds: float = 0.01,
+		max_seconds: float | None = None, ) -> float:
+	if base_seconds <= 0:
+		return 0.0
+	jitter = base_seconds * jitter_ratio
+	delay_seconds = random.uniform(max(min_seconds, base_seconds - jitter), base_seconds + jitter)
+	if max_seconds is not None:
+		return min(max_seconds, delay_seconds)
+	return delay_seconds
+
+
+def sleep_randomized(base_seconds: float,
+		jitter_ratio: float = 0.35,
+		min_seconds: float = 0.01,
+		max_seconds: float | None = None, ) -> None:
+	time.sleep(
+		randomize_delay(base_seconds, jitter_ratio=jitter_ratio, min_seconds=min_seconds, max_seconds=max_seconds)
+		)
 
 
 ACTIVITY_BLOCK_RE = re.compile(
@@ -360,7 +383,7 @@ def get_window_geometry(window_id: str) -> dict[str, int]:
 
 def activate_window(window_id: str) -> None:
 	run(["wmctrl", "-ia", window_id], capture=False)
-	time.sleep(1.0)
+	sleep_randomized(1.0, jitter_ratio=0.3, min_seconds=0.6, max_seconds=1.5)
 
 
 def spawn_background_process(command: list[str], *, env: dict[str, str] | None = None, stdout=None, stderr=None, ) -> \
@@ -803,12 +826,12 @@ class XController:
 	def click(self, x: int, y: int) -> None:
 		self.move_pointer(x, y)
 		if self.backend == "python-xlib":
-			time.sleep(0.2)
+			sleep_randomized(0.2, jitter_ratio=0.4, min_seconds=0.08, max_seconds=0.38)
 			self.xtest.fake_input(self.display, self.X.ButtonPress, 1)
 			self.xtest.fake_input(self.display, self.X.ButtonRelease, 1)
 			self.display.sync()
 			return
-		time.sleep(0.2)
+		sleep_randomized(0.2, jitter_ratio=0.4, min_seconds=0.08, max_seconds=0.38)
 		self.lib_xtst.XTestFakeButtonEvent(self.display, 1, 1, 0)
 		self.lib_xtst.XTestFakeButtonEvent(self.display, 1, 0, 0)
 		self.lib_x11.XSync(self.display, 0)
@@ -821,13 +844,13 @@ class XController:
 				self.xtest.fake_input(self.display, self.X.ButtonPress, 5)
 				self.xtest.fake_input(self.display, self.X.ButtonRelease, 5)
 				self.display.sync()
-				time.sleep(0.12)
+				sleep_randomized(0.12, jitter_ratio=0.45, min_seconds=0.05, max_seconds=0.26)
 			return
 		for _ in range(steps):
 			self.lib_xtst.XTestFakeButtonEvent(self.display, 5, 1, 0)
 			self.lib_xtst.XTestFakeButtonEvent(self.display, 5, 0, 0)
 			self.lib_x11.XSync(self.display, 0)
-			time.sleep(0.12)
+			sleep_randomized(0.12, jitter_ratio=0.45, min_seconds=0.05, max_seconds=0.26)
 	
 	def scroll_up(self, steps: int, x: int | None = None, y: int | None = None) -> None:
 		if x is not None and y is not None:
@@ -837,13 +860,13 @@ class XController:
 				self.xtest.fake_input(self.display, self.X.ButtonPress, 4)
 				self.xtest.fake_input(self.display, self.X.ButtonRelease, 4)
 				self.display.sync()
-				time.sleep(0.12)
+				sleep_randomized(0.12, jitter_ratio=0.45, min_seconds=0.05, max_seconds=0.26)
 			return
 		for _ in range(steps):
 			self.lib_xtst.XTestFakeButtonEvent(self.display, 4, 1, 0)
 			self.lib_xtst.XTestFakeButtonEvent(self.display, 4, 0, 0)
 			self.lib_x11.XSync(self.display, 0)
-			time.sleep(0.12)
+			sleep_randomized(0.12, jitter_ratio=0.45, min_seconds=0.05, max_seconds=0.26)
 
 
 def comment_panel_point(geometry: dict[str, int], y_ratio: float = 0.72) -> tuple[int, int]:
@@ -895,12 +918,12 @@ def expand_visible_reply_links(window_id: str,
 				controller.scroll_up(3, x=scroll_x, y=scroll_y)
 			else:
 				controller.scroll_down(3, x=scroll_x, y=scroll_y)
-			time.sleep(0.7)
+			sleep_randomized(0.7, jitter_ratio=0.4, min_seconds=0.35, max_seconds=1.1)
 			continue
 		controller.click(geometry["x"] + next_target.x, geometry["y"] + next_target.y)
 		click_targets.append((next_target.x, next_target.y))
 		attempts += 1
-		time.sleep(0.9)
+		sleep_randomized(0.9, jitter_ratio=0.4, min_seconds=0.45, max_seconds=1.45)
 	probe_path.unlink(missing_ok=True)
 	return len(click_targets)
 
@@ -1090,7 +1113,7 @@ def ensure_login_window(session_state: XephyrSessionState, url: str) -> None:
 	windows_before = list_chrome_windows()
 	open_url(
 		url, new_window=not windows_before, profile_dir=Path(session_state.profile_dir), env=display_env, )
-	time.sleep(2.0)
+	sleep_randomized(2.0, jitter_ratio=0.25, min_seconds=1.4, max_seconds=2.8)
 	if not list_chrome_windows():
 		raise SystemExit("failed to open Chrome inside Xephyr session")
 
@@ -1160,16 +1183,16 @@ def key_event(controller: XController, key_name: str, is_press: bool) -> None:
 
 def tap_key(controller: XController, key_name: str) -> None:
 	key_event(controller, key_name, True)
-	time.sleep(0.03)
+	sleep_randomized(0.03, jitter_ratio=0.5, min_seconds=0.01, max_seconds=0.06)
 	key_event(controller, key_name, False)
 
 
 def key_combo(controller: XController, modifiers: list[str], key_name: str) -> None:
 	for modifier in modifiers:
 		key_event(controller, modifier, True)
-		time.sleep(0.02)
+		sleep_randomized(0.02, jitter_ratio=0.5, min_seconds=0.01, max_seconds=0.05)
 	tap_key(controller, key_name)
-	time.sleep(0.02)
+	sleep_randomized(0.02, jitter_ratio=0.5, min_seconds=0.01, max_seconds=0.05)
 	for modifier in reversed(modifiers):
 		key_event(controller, modifier, False)
 
@@ -1230,7 +1253,7 @@ def type_text(controller: XController, text: str, delay_seconds: float = 0.025) 
 		tap_key(controller, key_name)
 		if use_shift:
 			key_event(controller, "Shift_L", False)
-		time.sleep(delay_seconds)
+		sleep_randomized(delay_seconds, jitter_ratio=0.55, min_seconds=0.01, max_seconds=max(0.08, delay_seconds * 2.4))
 
 
 def read_clipboard_text(timeout_seconds: float = 5.0) -> str:
@@ -1381,18 +1404,18 @@ def export_html_with_devtools_console(window_id: str, item_dir: Path) -> tuple[P
 	end_marker = "__CODEX_HTML_END__"
 	command = (f"copy('{start_marker}\\n'+document.documentElement.outerHTML+'\\n{end_marker}')")
 	activate_window(window_id)
-	time.sleep(0.4)
+	sleep_randomized(0.4, jitter_ratio=0.35, min_seconds=0.2, max_seconds=0.7)
 	controller.press_key("Escape")
-	time.sleep(0.2)
+	sleep_randomized(0.2, jitter_ratio=0.4, min_seconds=0.08, max_seconds=0.4)
 	key_combo(controller, ["Control_L", "Shift_L"], "j")
-	time.sleep(1.2)
+	sleep_randomized(1.2, jitter_ratio=0.35, min_seconds=0.7, max_seconds=1.8)
 	key_combo(controller, ["Control_L"], "a")
-	time.sleep(0.1)
+	sleep_randomized(0.1, jitter_ratio=0.45, min_seconds=0.04, max_seconds=0.22)
 	controller.press_key("BackSpace")
-	time.sleep(0.1)
+	sleep_randomized(0.1, jitter_ratio=0.45, min_seconds=0.04, max_seconds=0.22)
 	type_text(controller, command)
 	tap_key(controller, "Return")
-	time.sleep(0.5)
+	sleep_randomized(0.5, jitter_ratio=0.4, min_seconds=0.25, max_seconds=0.9)
 	html_text = wait_for_clipboard_markers(start_marker, end_marker)
 	key_combo(controller, ["Control_L", "Shift_L"], "j")
 	html_path = item_dir / "expanded_page.html"
@@ -1565,6 +1588,8 @@ chunk_size = 30000
 
 def analyze_html_fields(html_text: str, page_url: str, client: RnOllamaClient) -> dict[str, object]:
 	compact_html, share_count = clean_html_for_model(html_text)
+	html_path = Path(__file__).resolve().parent / Path("tmp/test/test.html")
+	html_path.write_text(compact_html, encoding="utf-8")
 	
 	html_chunks = split_html_chunks(compact_html, chunk_size=chunk_size)
 	system_prompt = """
@@ -1946,9 +1971,14 @@ def capture_item(url: str,
 	if before_windows:
 		existing_window = choose_target_window(before_windows, window_hint or None, active_window_id, set())
 		activate_window(existing_window.window_id)
-		time.sleep(0.6)
+		sleep_randomized(0.6, jitter_ratio=0.35, min_seconds=0.3, max_seconds=1.0)
 	open_url(url, new_window=not before_windows, profile_dir=chrome_profile_dir)
-	time.sleep(wait_seconds)
+	sleep_randomized(
+		wait_seconds,
+		jitter_ratio=0.2,
+		min_seconds=max(0.6, wait_seconds * 0.7),
+		max_seconds=max(wait_seconds + 1.2, wait_seconds * 1.3)
+		)
 	if existing_window is not None:
 		refreshed_window = get_window_by_id(existing_window.window_id)
 		target_window = refreshed_window or existing_window
@@ -1965,7 +1995,7 @@ def capture_item(url: str,
 		geometry = get_window_geometry(target_window.window_id)
 		controller = XController()
 		controller.press_key("Escape")
-		time.sleep(0.5)
+		sleep_randomized(0.5, jitter_ratio=0.4, min_seconds=0.22, max_seconds=0.9)
 		baseline_header_sample: np.ndarray | None = None
 		previous_comment_sample: np.ndarray | None = None
 		initial_title = target_window.title
@@ -2001,7 +2031,7 @@ def capture_item(url: str,
 					tail_probe_rounds += 1
 					next_page.unlink(missing_ok=True)
 					controller.scroll_down(max(1, scroll_steps // 2), x=scroll_x, y=scroll_y)
-					time.sleep(0.8)
+					sleep_randomized(0.8, jitter_ratio=0.35, min_seconds=0.4, max_seconds=1.2)
 					continue
 				stop_reason = "comment panel repeated"
 				next_page.unlink(missing_ok=True)
@@ -2017,7 +2047,7 @@ def capture_item(url: str,
 					tail_probe_rounds += 1
 					next_page.unlink(missing_ok=True)
 					controller.scroll_down(max(1, scroll_steps // 2), x=scroll_x, y=scroll_y)
-					time.sleep(0.8)
+					sleep_randomized(0.8, jitter_ratio=0.35, min_seconds=0.4, max_seconds=1.2)
 					continue
 				stop_reason = "comment panel stopped changing"
 				next_page.unlink(missing_ok=True)
@@ -2028,7 +2058,7 @@ def capture_item(url: str,
 					tail_probe_rounds += 1
 					next_page.unlink(missing_ok=True)
 					controller.scroll_down(max(1, scroll_steps // 2), x=scroll_x, y=scroll_y)
-					time.sleep(0.8)
+					sleep_randomized(0.8, jitter_ratio=0.35, min_seconds=0.4, max_seconds=1.2)
 					continue
 				stop_reason = "window screenshot repeated"
 				next_page.unlink(missing_ok=True)
@@ -2043,7 +2073,7 @@ def capture_item(url: str,
 				stop_reason = "skip_comment_scroll enabled"
 				break
 			controller.scroll_down(scroll_steps, x=scroll_x, y=scroll_y)
-			time.sleep(1.2)
+			sleep_randomized(1.2, jitter_ratio=0.35, min_seconds=0.7, max_seconds=1.8)
 		if not stop_reason and page_index >= max_pages:
 			stop_reason = f"reached max_pages={max_pages}"
 	except Exception as exc:  # noqa: BLE001
