@@ -597,13 +597,13 @@ def precheck_url(url: str, timeout: float = 10.0) -> PrecheckResult:
 		return PrecheckResult(
 			skipped_capture=False, status_code=None, location="", result_summary="", )
 	if status_code == HTTPStatus.FOUND:
-		log_event("precheck.skip", url=url, status_code=status_code, location=location)
+		log_event("precheck.moved", url=url, status_code=status_code, location=location)
 		return PrecheckResult(
-			skipped_capture=True, status_code=status_code, location=location, result_summary="页面不存在或已下架", )
-	if status_code == HTTPStatus.NOT_FOUND and ("/404" in url or "/404" in location):
-		log_event("precheck.skip", url=url, status_code=status_code, location=location)
+			skipped_capture=True, status_code=status_code, location=location, result_summary="页面已下架", )
+	if status_code == HTTPStatus.NOT_FOUND or ("/404" in url or "/404" in location):
+		log_event("precheck.NOT_FOUND", url=url, status_code=status_code, location=location)
 		return PrecheckResult(
-			skipped_capture=True, status_code=status_code, location=location, result_summary="页面不存在或已下架", )
+			skipped_capture=True, status_code=status_code, location=location, result_summary="页面不存在", )
 	log_event("precheck.done", url=url, status_code=status_code, location=location, skipped_capture=False)
 	return PrecheckResult(
 		skipped_capture=False, status_code=status_code, location=location, result_summary="", )
@@ -1001,7 +1001,7 @@ def sanitize_session_name(raw_name: str) -> str:
 
 
 def session_root_dir() -> Path:
-	return Path.cwd() / "tmp" / "xephyr_sessions"
+	return Path(__file__).resolve().parent / "tmp" / "xephyr_sessions"
 
 
 def session_dir_for(name: str) -> Path:
@@ -1022,6 +1022,73 @@ def pid_is_alive(pid: int) -> bool:
 	return True
 
 
+@dataclass
+class ProcessMatch:
+	pid: int
+	command: str
+
+
+def list_process_matches(pattern: re.Pattern[str]) -> list[ProcessMatch]:
+	result = run(["ps", "-eo", "pid=,args="], check=False)
+	if result.returncode != 0:
+		return []
+	matches: list[ProcessMatch] = []
+	for raw_line in result.stdout.splitlines():
+		line = raw_line.strip()
+		if not line:
+			continue
+		parts = line.split(None, 1)
+		if len(parts) != 2 or not parts[0].isdigit():
+			continue
+		pid = int(parts[0])
+		command = parts[1]
+		if not pattern.search(command):
+			continue
+		matches.append(ProcessMatch(pid=pid, command=command))
+	return matches
+
+
+def build_multi_process_error(session_name: str,
+                              process_label: str,
+                              display_name: str,
+                              matches: list[ProcessMatch]) -> str:
+	lines = [f"multiple {process_label} processes matched session {session_name} on display {display_name}", ]
+	for match in matches:
+		lines.append(f"pid={match.pid} cmd={match.command}")
+	lines.append("kill one of them and rerun, for example:")
+	for match in matches:
+		lines.append(f"kill {match.pid}")
+	return "\n".join(lines)
+
+
+def recover_session_state_from_processes(session_name: str, state: XephyrSessionState) -> XephyrSessionState | None:
+	display_name = re.escape(state.display)
+	xephyr_matches = list_process_matches(re.compile(rf"(^|.*/)Xephyr\s+{display_name}(\s|$)"))
+	metacity_matches = list_process_matches(re.compile(rf"(^|.*/)metacity(\s|$).*--display\s+{display_name}(\s|$)"))
+	if len(xephyr_matches) > 1:
+		raise SystemExit(build_multi_process_error(session_name, "Xephyr", state.display, xephyr_matches))
+	if len(metacity_matches) > 1:
+		raise SystemExit(build_multi_process_error(session_name, "metacity", state.display, metacity_matches))
+	if len(xephyr_matches) != 1 or len(metacity_matches) != 1:
+		return None
+	recovered_state = XephyrSessionState(
+		name=state.name,
+		display=state.display,
+		screen=state.screen,
+		profile_dir=state.profile_dir,
+		xephyr_pid=xephyr_matches[0].pid,
+		metacity_pid=metacity_matches[0].pid,
+		created_at=state.created_at, )
+	log_event(
+		"xephyr.session.recovered",
+		session_name=session_name,
+		display=state.display,
+		xephyr_pid=recovered_state.xephyr_pid,
+		metacity_pid=recovered_state.metacity_pid, )
+	write_session_state(session_name, recovered_state)
+	return recovered_state
+
+
 def load_session_state(session_name: str) -> XephyrSessionState | None:
 	state_path = session_state_path(session_dir_for(session_name))
 	if not state_path.exists():
@@ -1029,6 +1096,9 @@ def load_session_state(session_name: str) -> XephyrSessionState | None:
 	data = json.loads(state_path.read_text(encoding="utf-8"))
 	state = XephyrSessionState(**data)
 	if not (pid_is_alive(state.xephyr_pid) and pid_is_alive(state.metacity_pid)):
+		recovered_state = recover_session_state_from_processes(session_name, state)
+		if recovered_state is not None:
+			return recovered_state
 		state_path.unlink(missing_ok=True)
 		return None
 	return state
