@@ -18,6 +18,7 @@ from dataclasses import dataclass, asdict
 from html.parser import HTMLParser
 from http import HTTPStatus
 from pathlib import Path
+from typing import TypedDict
 from urllib import error, parse, request
 
 import numpy as np
@@ -35,6 +36,103 @@ AVATAR_ITEM_TAG_RE = re.compile(
 	r"<[^>]*\bclass\s*=\s*(\"[^\"]*\bavatar-item\b[^\"]*\"|'[^']*\bavatar-item\b[^']*')[^>]*>",
 	re.IGNORECASE | re.DOTALL
 	)
+CLASS_ATTR_RE = re.compile(r"\sclass\s*=\s*(\"[^\"]*\"|'[^']*')", re.IGNORECASE | re.DOTALL)
+TRIGGER_ATTR_RE = re.compile(r"\strigger\s*=\s*(\"[^\"]*\"|'[^']*')", re.IGNORECASE | re.DOTALL)
+DATA_V_ATTR_RE = re.compile(r"\sdata-v-[a-z0-9_-]+\s*=\s*(\"[^\"]*\"|'[^']*')", re.IGNORECASE | re.DOTALL)
+TARGET_ATTR_RE = re.compile(r"\starget\s*=\s*(\"[^\"]*\"|'[^']*')", re.IGNORECASE | re.DOTALL)
+DATA_USER_ID_ATTR_RE = re.compile(r"\sdata-user-id\s*=\s*(\"[^\"]*\"|'[^']*')", re.IGNORECASE | re.DOTALL)
+DATA_XSEC_TOKEN_ATTR_RE = re.compile(r"\sdata-xsec-token\s*=\s*(\"[^\"]*\"|'[^']*')", re.IGNORECASE | re.DOTALL)
+DATA_XSEC_SOURCE_ATTR_RE = re.compile(r"\sdata-xsec-source\s*=\s*(\"[^\"]*\"|'[^']*')", re.IGNORECASE | re.DOTALL)
+SELECTED_DISABLED_SEARCH_ATTR_RE = re.compile(
+	r"\sselected-disabled-search\s*=\s*(\"[^\"]*\"|'[^']*')",
+	re.IGNORECASE | re.DOTALL
+	)
+ID_ATTR_RE = re.compile(r"\sid\s*=\s*(\"[^\"]*\"|'[^']*')", re.IGNORECASE | re.DOTALL)
+TRACK_DATA_ATTR_RE = re.compile(r"\strack-data\s*=\s*(\"[^\"]*\"|'[^']*')", re.IGNORECASE | re.DOTALL)
+POINTS_ATTR_RE = re.compile(r"\spoints\s*=\s*(\"[^\"]*\"|'[^']*')", re.IGNORECASE | re.DOTALL)
+REMOVED_META_NAME_TAG_RE = re.compile(
+	r"<meta\b[^>]*\bname\s*=\s*(\"(?:viewport|format-detection|mobileOptimized|HandheldFriendly|applicable-device|mobile-web-app-capable|apple-mobile-web-app-status-bar-style|shenma-site-verification|360-site-verification|sogou-site-verification|google-site-verification|baidu-site-verification|og:image)\"|'(?:viewport|format-detection|mobileOptimized|HandheldFriendly|applicable-device|mobile-web-app-capable|apple-mobile-web-app-status-bar-style|shenma-site-verification|360-site-verification|sogou-site-verification|google-site-verification|baidu-site-verification|og:image)')[^>]*>",
+	re.IGNORECASE | re.DOTALL, )
+CREATOR_SERVICE_BLOCK_RE = re.compile(
+	r"<div\b[^>]*>\s*<div\b[^>]*>\s*"
+	r"<li\b[^>]*>\s*<span\b[^>]*>\s*<a\b[^>]*>\s*创作服务\s*</a>\s*</span>\s*<span\b[^>]*>\s*</span>\s*</li>\s*"
+	r"<li\b[^>]*>\s*<span\b[^>]*>\s*<a\b[^>]*>\s*直播管理\s*</a>\s*</span>\s*<span\b[^>]*>\s*</span>\s*</li>\s*"
+	r"<li\b[^>]*>\s*<span\b[^>]*>\s*<a\b[^>]*>\s*电脑直播助手\s*</a>\s*</span>\s*<span\b[^>]*>\s*</span>\s*</li>\s*"
+	r"</div>\s*</div>", re.IGNORECASE | re.DOTALL, )
+PRO_SERVICE_BLOCK_RE = re.compile(
+	r"<div\b[^>]*>\s*<div\b[^>]*>\s*"
+	r"<li\b[^>]*>\s*<span\b[^>]*>\s*<a\b[^>]*>\s*专业号\s*</a>\s*</span>\s*<span\b[^>]*>\s*</span>\s*</li>\s*"
+	r"<li\b[^>]*>\s*<span\b[^>]*>\s*<a\b[^>]*>\s*推广合作\s*</a>\s*</span>\s*<span\b[^>]*>\s*</span>\s*</li>\s*"
+	r"<li\b[^>]*>\s*<span\b[^>]*>\s*<a\b[^>]*>\s*蒲公英\s*</a>\s*</span>\s*<span\b[^>]*>\s*</span>\s*</li>\s*"
+	r"<li\b[^>]*>\s*<span\b[^>]*>\s*<a\b[^>]*>\s*商家入驻\s*</a>\s*</span>\s*<span\b[^>]*>\s*</span>\s*</li>\s*"
+	r"<li\b[^>]*>\s*<span\b[^>]*>\s*<a\b[^>]*>\s*MCN入驻\s*</a>\s*</span>\s*<span\b[^>]*>\s*</span>\s*</li>\s*"
+	r"</div>\s*</div>", re.IGNORECASE | re.DOTALL, )
+REPORT_COMMENT_BLOCK_RE = re.compile(
+	r"<div\b[^>]*>\s*<div\b[^>]*>\s*<div\b[^>]*>\s*<div\b[^>]*>\s*<span\b[^>]*>\s*举报评论\s*</span>\s*</div>\s*</div>\s*</div>\s*</div>",
+	re.IGNORECASE | re.DOTALL, )
+NOTE_ACTION_BLOCK_RE = re.compile(
+	r"<div\b[^>]*>\s*"
+	r"<div\b[^>]*>\s*下载图片\s*</div>\s*"
+	r"<div\b[^>]*>\s*复制图片\s*</div>\s*"
+	r"<div\b[^>]*>\s*复制笔记链接\s*</div>\s*"
+	r"</div>", re.IGNORECASE | re.DOTALL, )
+PRESERVED_MODEL_CLASS_NAMES = {"parent-comment"}
+REPORT_BLOCK_RE = re.compile(
+	r"<div\b[^>]*>\s*<div\b[^>]*>\s*<div\b[^>]*\bselected\s*=\s*(\"false\"|'false')[^>]*\bmultiselected\s*=\s*(\"false\"|'false')[^>]*>\s*"
+	r"<div\b[^>]*>\s*<span\b[^>]*>\s*举报\s*</span>\s*</div>\s*</div>\s*</div>\s*</div>",
+	re.IGNORECASE | re.DOTALL, )
+
+
+class ChunkResult(TypedDict):
+	title: str
+	正文: str
+	评论: str
+	互动数据: str
+	图片: list[str]
+	视频: list[str]
+
+
+ACTIVITY_BLOCK_RE = re.compile(
+	r"<div\b[^>]*>\s*<div\b[^>]*>\s*"
+	r"<div\b[^>]*>\s*<button\b[^>]*>\s*<span\b[^>]*>\s*</span>\s*</button>\s*</div>\s*"
+	r"<div\b[^>]*>\s*活动\s*</div>\s*"
+	r"<div\b[^>]*>\s*<button\b[^>]*>\s*<span\b[^>]*>\s*</span>\s*</button>\s*</div>\s*"
+	r"</div>\s*"
+	r"<div\b[^>]*>\s*"
+	r"<div\b[^>]*>\s*<div\b[^>]*>\s*<button\b[^>]*>\s*<span\b[^>]*>\s*</span>\s*</button>\s*</div>\s*</div>\s*"
+	r"<div\b[^>]*>\s*活动\s*</div>\s*"
+	r"<div\b[^>]*>\s*"
+	r"<div\b[^>]*>\s*<button\b[^>]*>\s*<span\b[^>]*>\s*</span>\s*</button>\s*</div>\s*"
+	r"<button\b[^>]*>\s*<span\b[^>]*>\s*</span>\s*</button>\s*"
+	r"<button\b[^>]*>\s*<span\b[^>]*>\s*</span>\s*</button>\s*"
+	r"</div>\s*</div>\s*"
+	r"<iframe\b[^>]*>\s*</iframe>\s*</div>", re.IGNORECASE | re.DOTALL, )
+ADBLOCK_TIPS_BLOCK_RE = re.compile(
+	r"<div\b[^>]*>\s*<div\b[^>]*>\s*</div>\s*<div\b[^>]*>\s*"
+	r"<div\b[^>]*>\s*<div\b[^>]*>\s*温馨提示\s*</div>\s*</div>\s*"
+	r"<div\b[^>]*>\s*<div\b[^>]*>\s*您的浏览器似乎开启了广告屏蔽插件，可能对正常使用造成影响，请移除插件或将小红书加入插件白名单后继续使用。\s*</div>\s*</div>\s*"
+	r"<div\b[^>]*>\s*<button\b[^>]*>\s*<span\b[^>]*>\s*<span\b[^>]*>\s*我知道了\s*</span>\s*</span>\s*</button>\s*</div>\s*"
+	r"</div>\s*</div>", re.IGNORECASE | re.DOTALL, )
+APPEAL_MODAL_BLOCK_RE = re.compile(
+	r"<div\b[^>]*>\s*<div\b[^>]*>\s*</div>\s*<div\b[^>]*>\s*<div\b[^>]*>\s*</div>\s*<div\b[^>]*>\s*</div>\s*"
+	r"<div\b[^>]*>\s*<button\b[^>]*>\s*<span\b[^>]*>\s*<span\b[^>]*>\s*我要申诉\s*</span>\s*</span>\s*</button>\s*"
+	r"<button\b[^>]*>\s*<span\b[^>]*>\s*<span\b[^>]*>\s*我知道了\s*</span>\s*</span>\s*</button>\s*</div>\s*</div>\s*</div>",
+	re.IGNORECASE | re.DOTALL, )
+FOOTER_MORE_BLOCK_RE = re.compile(
+	r"<div\b[^>]*>\s*<div\b[^>]*>\s*更多\s*</div>\s*<div\b[^>]*>.*?沪ICP备13030189号.*?©\s*2014-2026.*?行吟信息科技（上海）有限公司.*?地址：上海市黄浦区马当路388号C座.*?电话：9501-3888.*?</div>\s*</div>",
+	re.IGNORECASE | re.DOTALL, )
+BOTTOM_NAV_BLOCK_RE = re.compile(
+	r"<div\b[^>]*>\s*<div\b[^>]*>\s*<ul\b[^>]*>.*?发现.*?直播.*?发布.*?通知.*?<span\b[^>]*>\s*我\s*</span>.*?沪ICP备13030189号.*?©\s*2014-2026.*?行吟信息科技（上海）有限公司.*?电话：9501-3888.*?</ul>\s*</div>\s*</div>",
+	re.IGNORECASE | re.DOTALL, )
+HEADER_SEARCH_BLOCK_RE = re.compile(
+	r"<header\b[^>]*>.*?placeholder\s*=\s*(\"搜索小红书\"|'搜索小红书').*?placeholder\s*=\s*(\"搜索小红书\"|'搜索小红书').*?创作中心.*?业务合作.*?</header>\s*</div>",
+	re.IGNORECASE | re.DOTALL, )
+A_OPEN_TAG_RE = re.compile(r"<a\b[^>]*>", re.IGNORECASE | re.DOTALL)
+A_CLOSE_TAG_RE = re.compile(r"</a>", re.IGNORECASE)
+INTERTAG_WHITESPACE_RE = re.compile(r">\s+<", re.DOTALL)
+LINEBREAK_RE = re.compile(r"[\r\n\t]+")
+MULTISPACE_RE = re.compile(r" {2,}")
+SHARE_COUNT_RE = re.compile(r'"shareCount"\s*:\s*"?(?P<count>\d+)"?', re.IGNORECASE)
 MEDIA_SKIP_PATTERNS = ("avatar", "emoji", "icon", "logo", "sprite", "badge", "favicon",)
 
 
@@ -373,7 +471,7 @@ class RnOllamaClient:
 	def chat(self,
 	         user_prompt: str,
 	         *,
-	         chunk_size: int = 40000,
+	         chunk_size: int = 30000,
 	         system_prompt: str = "",
 	         images: list[str] | None = None) -> str:
 		messages: list[dict[str, object]] = []
@@ -1308,17 +1406,63 @@ def export_current_html(result: CaptureResult) -> tuple[Path, str]:
 	return export_html_with_devtools_console(result.window.window_id, result.item_dir)
 
 
-def clean_html_for_model(raw_html: str) -> str:
+def extract_share_count(raw_html: str) -> str:
+	match = SHARE_COUNT_RE.search(raw_html)
+	if not match:
+		return ""
+	return match.group("count").strip()
+
+
+def clean_class_attr_for_model(match: re.Match[str]) -> str:
+	quote_wrapped_value = match.group(1)
+	quote = quote_wrapped_value[0]
+	class_names = quote_wrapped_value[1:-1].split()
+	preserved_class_names = [name for name in class_names if name in PRESERVED_MODEL_CLASS_NAMES]
+	if not preserved_class_names:
+		return ""
+	return f" class={quote}{' '.join(preserved_class_names)}{quote}"
+
+
+def clean_html_for_model(raw_html: str) -> tuple[str, str]:
+	share_count = extract_share_count(raw_html)
 	cleaned = HTML_COMMENT_RE.sub("", raw_html)
 	cleaned = SVG_BLOCK_RE.sub("", cleaned)
 	cleaned = DEFS_BLOCK_RE.sub("", cleaned)
 	cleaned = SYMBOL_BLOCK_RE.sub("", cleaned)
 	cleaned = SCRIPT_STYLE_RE.sub("", cleaned)
+	cleaned = CREATOR_SERVICE_BLOCK_RE.sub("", cleaned)
+	cleaned = PRO_SERVICE_BLOCK_RE.sub("", cleaned)
 	cleaned = LINK_TAG_RE.sub("", cleaned)
 	cleaned = AVATAR_ITEM_TAG_RE.sub("", cleaned)
+	cleaned = CLASS_ATTR_RE.sub(clean_class_attr_for_model, cleaned)
+	cleaned = TRIGGER_ATTR_RE.sub("", cleaned)
+	cleaned = DATA_V_ATTR_RE.sub("", cleaned)
+	cleaned = TARGET_ATTR_RE.sub("", cleaned)
+	cleaned = DATA_USER_ID_ATTR_RE.sub("", cleaned)
+	cleaned = DATA_XSEC_TOKEN_ATTR_RE.sub("", cleaned)
+	cleaned = DATA_XSEC_SOURCE_ATTR_RE.sub("", cleaned)
+	cleaned = SELECTED_DISABLED_SEARCH_ATTR_RE.sub("", cleaned)
+	cleaned = ID_ATTR_RE.sub("", cleaned)
+	cleaned = TRACK_DATA_ATTR_RE.sub("", cleaned)
+	cleaned = POINTS_ATTR_RE.sub("", cleaned)
+	cleaned = REMOVED_META_NAME_TAG_RE.sub("", cleaned)
 	cleaned = INLINE_STYLE_ATTR_RE.sub("", cleaned)
 	cleaned = INLINE_EVENT_ATTR_RE.sub("", cleaned)
-	return cleaned
+	cleaned = REPORT_BLOCK_RE.sub("", cleaned)
+	cleaned = ACTIVITY_BLOCK_RE.sub("", cleaned)
+	cleaned = ADBLOCK_TIPS_BLOCK_RE.sub("", cleaned)
+	cleaned = APPEAL_MODAL_BLOCK_RE.sub("", cleaned)
+	cleaned = FOOTER_MORE_BLOCK_RE.sub("", cleaned)
+	cleaned = BOTTOM_NAV_BLOCK_RE.sub("", cleaned)
+	cleaned = HEADER_SEARCH_BLOCK_RE.sub("", cleaned)
+	cleaned = A_OPEN_TAG_RE.sub("", cleaned)
+	cleaned = A_CLOSE_TAG_RE.sub("", cleaned)
+	cleaned = NOTE_ACTION_BLOCK_RE.sub("", cleaned)
+	cleaned = REPORT_COMMENT_BLOCK_RE.sub("", cleaned)
+	cleaned = INTERTAG_WHITESPACE_RE.sub("><", cleaned)
+	cleaned = LINEBREAK_RE.sub("", cleaned)
+	cleaned = MULTISPACE_RE.sub(" ", cleaned)
+	return cleaned, share_count
 
 
 def extract_json_object(raw_text: str) -> dict[str, object]:
@@ -1339,7 +1483,7 @@ def extract_json_object(raw_text: str) -> dict[str, object]:
 			continue
 		if isinstance(parsed, dict):
 			return parsed
-	raise RuntimeError(f"model did not return a json object: {raw_text[:600]}")
+	raise RuntimeError(f"model did not return a json object: {raw_text}")
 
 
 def normalize_text_field(value: object) -> str:
@@ -1370,34 +1514,102 @@ def merge_text_field(values: list[str]) -> str:
 	return "\n".join(merged)
 
 
-def analyze_html_fields(html_text: str, page_url: str, client: RnOllamaClient) -> dict[str, str]:
-	compact_html = clean_html_for_model(html_text)
-	html_chunks = split_html_chunks(compact_html, chunk_size=100000)
+def normalize_media_list_field(value: object) -> list[str]:
+	if value is None:
+		return []
+	if isinstance(value, list):
+		result: list[str] = []
+		for item in value:
+			if item is None:
+				continue
+			text = str(item).strip()
+			if text:
+				result.append(text)
+		return result
+	text = str(value).strip()
+	if not text:
+		return []
+	if "\n" in text:
+		return [item.strip() for item in text.splitlines() if item.strip()]
+	return [text]
+
+
+def merge_media_list_field(values: list[list[str]]) -> list[str]:
+	merged: list[str] = []
+	seen: set[str] = set()
+	for value_list in values:
+		for value in value_list:
+			text = value.strip()
+			if not text or text in seen:
+				continue
+			seen.add(text)
+			merged.append(text)
+	return merged
+
+
+def merge_interact_text_with_share_count(interact_text: str, share_count: str) -> str:
+	text = interact_text.strip()
+	count = share_count.strip()
+	if not count:
+		return text
+	share_line = f"分享次数: {count}"
+	if share_line in text:
+		return text
+	if text:
+		return f"{text}\n{share_line}"
+	return share_line
+
+
+chunk_size = 30000
+
+
+def analyze_html_fields(html_text: str, page_url: str, client: RnOllamaClient) -> dict[str, object]:
+	compact_html, share_count = clean_html_for_model(html_text)
+	
+	html_chunks = split_html_chunks(compact_html, chunk_size=chunk_size)
 	system_prompt = """
     你只返回 JSON，不要解释，不要 markdown。请基于下面这份“评论已经展开后的整页 HTML 分段”提取结构化信息，必须返回 JSON 对象。
 
     要求：
-   1. JSON 只包含这 4 个键：title、正文、评论、互动数据
+   1. JSON 只包含这 6 个键：title、正文、评论、互动数据、图片、视频
 
    2. 结果尽量直接输出原文，不要润色
 
-   3. `正文`保留表情
+   3. 保留表情, 并且往往会有`<class="xxx-emoji">`标签的表情，请输出 ![emoji](emoji_url)
 
-   4. `评论` 请按 conversation block 输出为 markdown fenced code blocks，例如：
+   4. `评论` 请按每个 parent-comment 输出为 markdown  blocks，作者需要标记出来，例如：
 
-          ```text
-          - xxx
-          - xx
-          ```
-          ```text
-          - xxx
-          - xx
-          ```
+     parent-comment1 输出为
+      ```
+      - x:msg
+          - ...可能多条
+          - 可能 xx(作者):msg
+          - ...可能多条
+      ```
+     parent-comment2 输出为
+      ```
+      - x:msg
+          ...多条
+      ```
+     ...
 
-    5. 字段缺失时返回空字符串
+   5. `图片`、`视频` 必须返回数组，值为笔记主体内容对应的原始媒体 url
+
+   6. `图片`、`视频` 只保留笔记主体媒体，忽略 emoji、头像、icon、logo、装饰图、svg、data:image、按钮图、搜索框图
+
+   7. `互动数据` 输出格式
+
+         ```
+         点赞: xx, 收藏: xx, 评论: xx
+         ```
+
+   8. 字段缺失时：
+
+         - title、正文、评论、互动数据 返回空字符串
+         - 图片、视频 返回空数组
 
     """
-	chunk_results: list[dict[str, str]] = []
+	chunk_results: list[ChunkResult] = []
 	for index, html_chunk in enumerate(html_chunks, start=1):
 		user_prompt = f"""
 URL: {page_url}
@@ -1407,13 +1619,15 @@ HTML:
 ```html
 {html_chunk}
 ```"""
-		parsed = extract_json_object(client.chat(user_prompt, system_prompt=system_prompt))
+		parsed = extract_json_object(client.chat(user_prompt, chunk_size=chunk_size, system_prompt=system_prompt))
 		chunk_results.append(
 			{
 				"title": normalize_text_field(parsed.get("title")),
 				"正文": normalize_text_field(parsed.get("正文")),
 				"评论": normalize_text_field(parsed.get("评论")),
 				"互动数据": normalize_text_field(parsed.get("互动数据")),
+				"图片": normalize_media_list_field(parsed.get("图片")),
+				"视频": normalize_media_list_field(parsed.get("视频")),
 			}
 		)
 	title = ""
@@ -1425,7 +1639,9 @@ HTML:
 		"title": title,
 		"正文": merge_text_field([item["正文"] for item in chunk_results]),
 		"评论": merge_text_field([item["评论"] for item in chunk_results]),
-		"互动数据": merge_text_field([item["互动数据"] for item in chunk_results]),
+		"互动数据": f'{merge_text_field([item["互动数据"] for item in chunk_results])}, 分享：{share_count}',
+		"图片": merge_media_list_field([item["图片"] for item in chunk_results]),
+		"视频": merge_media_list_field([item["视频"] for item in chunk_results]),
 	}
 
 
@@ -1444,6 +1660,10 @@ def resolve_media_reference(reference: str, page_url: str, html_path: Path) -> s
 	if local_candidate.exists():
 		return str(local_candidate)
 	return parse.urljoin(page_url, value)
+
+
+def normalize_media_source(reference: str) -> str:
+	return html.unescape(reference).strip()
 
 
 def is_interesting_media(candidate: MediaCandidate) -> bool:
@@ -1472,7 +1692,8 @@ def collect_media_candidates(html_text: str, page_url: str, html_path: Path) -> 
 			if not resolved:
 				continue
 			candidate = MediaCandidate(kind=kind, source=ref, resolved=resolved)
-			key = (candidate.kind, candidate.resolved)
+			source_key = normalize_media_source(candidate.source)
+			key = (candidate.kind, source_key if kind == "image" else candidate.resolved)
 			if key in seen or not is_interesting_media(candidate):
 				continue
 			seen.add(key)
@@ -1516,13 +1737,22 @@ def download_images(candidates: list[MediaCandidate], page_url: str, item_dir: P
 	image_dir = item_dir / "images"
 	image_dir.mkdir(parents=True, exist_ok=True)
 	local_paths: list[str] = []
-	for index, candidate in enumerate(candidates[:limit], start=1):
+	seen_sources: set[str] = set()
+	save_index = 1
+	for candidate in candidates:
+		source_key = normalize_media_source(candidate.source)
+		if not source_key or source_key in seen_sources:
+			continue
+		seen_sources.add(source_key)
+		if save_index > limit:
+			break
 		try:
 			payload = read_media_bytes(candidate.resolved, page_url)
 			suffix = guess_image_suffix(candidate)
-			target_path = image_dir / f"image_{index:03d}{suffix}"
+			target_path = image_dir / f"image_{save_index:03d}{suffix}"
 			target_path.write_bytes(payload)
 			local_paths.append(str(target_path))
+			save_index += 1
 		except Exception:
 			continue
 	return local_paths
@@ -1586,9 +1816,10 @@ def process_result(result: CaptureResult, client: RnOllamaClient, *, image_limit
 		manifest["正文"] = structured_fields["正文"]
 		manifest["评论"] = structured_fields["评论"]
 		manifest["互动数据"] = structured_fields["互动数据"]
-		image_candidates, video_candidates = collect_media_candidates(html_text, result.url, html_path)
+		image_candidates = [MediaCandidate(kind="image", source=image_url, resolved=image_url) for image_url in
+			structured_fields["图片"][:image_limit]]
 		manifest["图片"] = download_images(image_candidates, result.url, result.item_dir, image_limit)
-		manifest["视频"] = collect_video_urls(video_candidates, video_limit)
+		manifest["视频"] = structured_fields["视频"][:video_limit]
 		manifest["result_summary"] = "expanded html exported and parsed by ollama-compatible model"
 	except Exception as exc:  # noqa: BLE001
 		manifest["parse_error"] = str(exc)
