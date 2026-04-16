@@ -2094,7 +2094,6 @@ def capture_item(url: str,
 	log_event(
 		"capture_item.start",
 		item_index=item_index,
-		url=url,
 		wait_seconds=wait_seconds,
 		max_pages=max_pages,
 		scroll_steps=scroll_steps,
@@ -2106,10 +2105,7 @@ def capture_item(url: str,
 	precheck = precheck_url(url)
 	if precheck.skipped_capture:
 		log_event(
-			"capture_item.precheck_skip",
-			item_index=item_index,
-			status_code=precheck.status_code,
-			location=precheck.location, )
+			"capture_item.precheck_skip", status_code=precheck.status_code, location=precheck.location, )
 		manifest = {
 			"item_index": item_index,
 			"url": url,
