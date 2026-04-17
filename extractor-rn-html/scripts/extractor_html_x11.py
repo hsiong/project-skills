@@ -2234,6 +2234,11 @@ def capture_item(url: str,
 		raise RuntimeError("ROOT_DIR is not initialized")
 	item_dir = ROOT_DIR / f"item_{item_index}"
 	item_dir.mkdir(parents=True, exist_ok=True)
+	sleep_randomized(
+		wait_seconds,
+		jitter_ratio=0.45,
+		min_seconds=max(0.9, wait_seconds * 0.75),
+		max_seconds=max(wait_seconds + 3.2, wait_seconds * 1.7), )
 	precheck = precheck_url(url)
 	if precheck.precheck_error:
 		log_event(
@@ -2275,11 +2280,6 @@ def capture_item(url: str,
 		)
 	else:
 		open_url(url, new_window=True, profile_dir=chrome_profile_dir)
-	sleep_randomized(
-		wait_seconds,
-		jitter_ratio=0.2,
-		min_seconds=max(0.6, wait_seconds * 0.7),
-		max_seconds=max(wait_seconds + 1.2, wait_seconds * 1.3), )
 	if existing_window is not None:
 		refreshed_window = get_window_by_id(existing_window.window_id)
 		target_window = refreshed_window or existing_window
@@ -2339,7 +2339,7 @@ def capture_item(url: str,
 					tail_probe_rounds += 1
 					next_page.unlink(missing_ok=True)
 					controller.scroll_down(max(1, scroll_steps // 2), x=scroll_x, y=scroll_y)
-					sleep_randomized(0.8, jitter_ratio=0.35, min_seconds=0.4, max_seconds=1.2)
+					sleep_randomized(1.15, jitter_ratio=0.55, min_seconds=0.55, max_seconds=2.3)
 					continue
 				stop_reason = "ok:comment panel"
 				next_page.unlink(missing_ok=True)
@@ -2355,7 +2355,7 @@ def capture_item(url: str,
 					tail_probe_rounds += 1
 					next_page.unlink(missing_ok=True)
 					controller.scroll_down(max(1, scroll_steps // 2), x=scroll_x, y=scroll_y)
-					sleep_randomized(0.8, jitter_ratio=0.35, min_seconds=0.4, max_seconds=1.2)
+					sleep_randomized(1.15, jitter_ratio=0.55, min_seconds=0.55, max_seconds=2.3)
 					continue
 				stop_reason = "ok:comment panel"
 				next_page.unlink(missing_ok=True)
@@ -2366,7 +2366,7 @@ def capture_item(url: str,
 					tail_probe_rounds += 1
 					next_page.unlink(missing_ok=True)
 					controller.scroll_down(max(1, scroll_steps // 2), x=scroll_x, y=scroll_y)
-					sleep_randomized(0.8, jitter_ratio=0.35, min_seconds=0.4, max_seconds=1.2)
+					sleep_randomized(1.15, jitter_ratio=0.55, min_seconds=0.55, max_seconds=2.3)
 					continue
 				stop_reason = "ok:screenshot"
 				next_page.unlink(missing_ok=True)
@@ -2387,7 +2387,7 @@ def capture_item(url: str,
 				stop_reason = "ok:skip_comment_scroll"
 				break
 			controller.scroll_down(scroll_steps, x=scroll_x, y=scroll_y)
-			sleep_randomized(1.2, jitter_ratio=0.35, min_seconds=0.7, max_seconds=1.8)
+			sleep_randomized(1.75, jitter_ratio=0.55, min_seconds=0.9, max_seconds=3.4)
 		if not stop_reason and page_index >= max_pages:
 			stop_reason = f"limit:reached max_pages={max_pages}"
 	except Exception as exc:  # noqa: BLE001
@@ -2428,7 +2428,7 @@ def main() -> int:
 	parser.add_argument(
 		"--out-dir", default="", help="Directory for html export, downloaded images, manifests, and report"
 	)
-	parser.add_argument("--wait-seconds", type=float, default=8.0, help="Wait after opening the URL")
+	parser.add_argument("--wait-seconds", type=float, default=5.0, help="Wait after opening the URL")
 	parser.add_argument("--window-hint", default="", help="Prefer a Chrome window whose title contains this text")
 	parser.add_argument(
 		"--skip-comment-scroll", action="store_true", help="Only capture the initial page before html export"
