@@ -411,6 +411,7 @@ def get_window_geometry(window_id: str) -> dict[str, int]:
 
 def activate_window(window_id: str) -> None:
 	run(["wmctrl", "-ia", window_id], capture=False)
+	sleep_randomized(1.0, jitter_ratio=0.3, min_seconds=0.6, max_seconds=1.5)
 
 
 def spawn_background_process(command: list[str], *, env: dict[str, str] | None = None, stdout=None, stderr=None, ) -> \
@@ -470,6 +471,7 @@ def reset_stale_chrome_profile(profile_dir: Path) -> None:
 	)
 	terminate_processes(processes)
 	cleanup_chrome_profile_singletons(profile_dir)
+	sleep_randomized(0.5, jitter_ratio=0.3, min_seconds=0.2, max_seconds=0.9)
 
 
 def open_url(url: str,
@@ -536,9 +538,13 @@ def open_url_in_existing_window(window_id: str,
 		return
 	controller = XController()
 	controller.press_key("Escape")
+	sleep_randomized(0.3, jitter_ratio=0.4, min_seconds=0.12, max_seconds=0.6)
 	key_combo(controller, ["Control_L"], "t")
+	sleep_randomized(0.35, jitter_ratio=0.35, min_seconds=0.18, max_seconds=0.7)
 	key_combo(controller, ["Control_L"], "l")
+	sleep_randomized(0.15, jitter_ratio=0.4, min_seconds=0.05, max_seconds=0.35)
 	type_text(controller, url)
+	sleep_randomized(0.12, jitter_ratio=0.4, min_seconds=0.04, max_seconds=0.25)
 	tap_key(controller, "Return")
 	log_event("chrome.tab.open.done", window_id=window_id, mode="keyboard-fallback")
 
@@ -1359,6 +1365,7 @@ def ensure_login_window(session_state: XephyrSessionState, url: str) -> None:
 	else:
 		open_url(
 			url, new_window=True, profile_dir=Path(session_state.profile_dir), env=display_env, )
+	sleep_randomized(2.0, jitter_ratio=0.25, min_seconds=1.4, max_seconds=2.8)
 	if not list_chrome_windows():
 		raise SystemExit("failed to open Chrome inside Xephyr session")
 	log_event("xephyr.login_window.done", session_name=session_state.name, had_windows=bool(windows_before))
@@ -1441,13 +1448,16 @@ def key_event(controller: XController, key_name: str, is_press: bool) -> None:
 
 def tap_key(controller: XController, key_name: str) -> None:
 	key_event(controller, key_name, True)
+	sleep_randomized(0.03, jitter_ratio=0.5, min_seconds=0.01, max_seconds=0.06)
 	key_event(controller, key_name, False)
 
 
 def key_combo(controller: XController, modifiers: list[str], key_name: str) -> None:
 	for modifier in modifiers:
 		key_event(controller, modifier, True)
+		sleep_randomized(0.02, jitter_ratio=0.5, min_seconds=0.01, max_seconds=0.05)
 	tap_key(controller, key_name)
+	sleep_randomized(0.02, jitter_ratio=0.5, min_seconds=0.01, max_seconds=0.05)
 	for modifier in reversed(modifiers):
 		key_event(controller, modifier, False)
 
@@ -1500,7 +1510,7 @@ def char_key(char: str) -> tuple[str, bool]:
 	return mapping[char]
 
 
-def type_text(controller: XController, text: str, is_delay=False) -> None:
+def type_text(controller: XController, text: str, delay_seconds: float = 0.025) -> None:
 	for char in text:
 		key_name, use_shift = char_key(char)
 		if use_shift:
@@ -1508,9 +1518,7 @@ def type_text(controller: XController, text: str, is_delay=False) -> None:
 		tap_key(controller, key_name)
 		if use_shift:
 			key_event(controller, "Shift_L", False)
-		if is_delay:
-			sleep_randomized(
-				base_seconds=0.025, jitter_ratio=0.55, min_seconds=0.01, max_seconds=max(0.08, 0.025 * 2.4), )
+		sleep_randomized(delay_seconds, jitter_ratio=0.55, min_seconds=0.01, max_seconds=max(0.08, delay_seconds * 2.4))
 
 
 def read_clipboard_text(timeout_seconds: float = 5.0) -> str:
@@ -1661,12 +1669,18 @@ def export_html_with_devtools_console(window_id: str, item_dir: Path) -> Path:
 	end_marker = "__CODEX_HTML_END__"
 	command = (f"copy('{start_marker}\\n'+document.documentElement.outerHTML+'\\n{end_marker}')")
 	activate_window(window_id)
+	sleep_randomized(0.4, jitter_ratio=0.35, min_seconds=0.2, max_seconds=0.7)
 	controller.press_key("Escape")
+	sleep_randomized(0.2, jitter_ratio=0.4, min_seconds=0.08, max_seconds=0.4)
 	key_combo(controller, ["Control_L", "Shift_L"], "j")
+	sleep_randomized(1.2, jitter_ratio=0.35, min_seconds=0.7, max_seconds=1.8)
 	key_combo(controller, ["Control_L"], "a")
+	sleep_randomized(0.1, jitter_ratio=0.45, min_seconds=0.04, max_seconds=0.22)
 	controller.press_key("BackSpace")
+	sleep_randomized(0.1, jitter_ratio=0.45, min_seconds=0.04, max_seconds=0.22)
 	type_text(controller, command)
 	tap_key(controller, "Return")
+	sleep_randomized(0.5, jitter_ratio=0.4, min_seconds=0.25, max_seconds=0.9)
 	html_text = wait_for_clipboard_markers(start_marker, end_marker)
 	key_combo(controller, ["Control_L", "Shift_L"], "j")
 	html_path = item_dir / "expanded_page.html"
@@ -2279,7 +2293,8 @@ def capture_item(url: str,
 		wait_seconds,
 		jitter_ratio=0.2,
 		min_seconds=max(0.6, wait_seconds * 0.7),
-		max_seconds=max(wait_seconds + 1.2, wait_seconds * 1.3), )
+		max_seconds=max(wait_seconds + 1.2, wait_seconds * 1.3)
+	)
 	if existing_window is not None:
 		refreshed_window = get_window_by_id(existing_window.window_id)
 		target_window = refreshed_window or existing_window
@@ -2302,6 +2317,7 @@ def capture_item(url: str,
 		geometry = get_window_geometry(target_window.window_id)
 		controller = controller or XController()
 		controller.press_key("Escape")
+		sleep_randomized(0.5, jitter_ratio=0.4, min_seconds=0.22, max_seconds=0.9)
 		baseline_header_sample: np.ndarray | None = None
 		previous_comment_sample: np.ndarray | None = None
 		initial_title = target_window.title
