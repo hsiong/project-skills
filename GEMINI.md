@@ -1,49 +1,21 @@
-# Project: Codex Skills
-
-This repository is a collection of "skills" for the Gemini CLI and Codex. Each skill is a self-contained directory that provides specialized instructions, scripts, and references to handle specific tasks.
-
-## Workspace Overview
-
-The project is structured as a collection of specialized agents, each defined by a `SKILL.md` file. The skills are designed to be used by LLMs to perform complex tasks, often involving external tools and scripts.
-
-### Key Skills
-
-- **`chrome-extractor-rn-v2`**: A powerful tool for extracting structured content from web pages (especially social media like Rednote). It uses a local GUI Chrome instance, automates comment expansion, exports cleaned HTML, and uses Ollama-compatible models for analysis.
-- **`commit_chinese` / `commit_english`**: Git commit helpers that enforce specific grouping rules and message formats. They include safety checks like preventing commits with `todo` markers.
-- **`github-issue-generator`**: Assists in creating high-quality GitHub issues by checking for duplicates and following repository templates.
-- **Code Style Skills**: `java-code-style`, `python-code-style`, and `java-feign-integration` provide project-specific coding conventions and patterns.
-- **`skill-creator`**: A meta-skill for building new skills.
-
-## Core Technologies
-
-- **Languages**: Python (for automation scripts), Markdown (for skill definitions and documentation).
-- **Automation**: `wmctrl`, `xlib`, `ctypes` (for GUI interaction on Linux), `subprocess`.
-- **LLM Integration**: Ollama-compatible APIs for HTML analysis and media recognition.
-- **Source Control**: Git.
-
-## Development Conventions
-
-- **Skill Structure**: Each skill must have a `SKILL.md` with YAML front matter (`name`, `description`). Optional directories include `scripts/`, `references/`, `assets/`, and `agents/`.
-- **Prompt History**: Original prompts are stored in `.prompt/{skill_name}.md`, and revisions are versioned as `{skill_name}_{hhmmss}.md`.
-- **Execution**: Skills often delegate complex work to Python scripts in their `scripts/` directory.
-
-## Getting Started
-
-### Creating a New Skill
-Use the `skill-creator` skill or manually create a folder with a `SKILL.md` file following the template in `Readme.md`.
-
-### Running the Extractor (v2)
-Requires a Linux environment with X11/Xephyr.
-```bash
-python3 extractor-rn-vision-v2/scripts/extractor_html_x11.py <url>
-```
-Common options:
-- `--xephyr-session <name>`: Reuse a persistent Xephyr session.
-- `--prepare-login`: Open Chrome for manual login before extraction.
-- `--ollama-model <model>`: Specify the parsing model.
-
-## Rules & Guardrails
-
-- **No Secrets**: Never commit or log API keys or sensitive credentials.
-- **Grouping**: Non-programming files with different names or paths must be committed separately (as per `commit_chinese`/`commit_english` rules).
-- **TODO Check**: Commits are blocked if the changed code contains `todo` unless explicitly allowed.
+ 已知本项目是codex-skill项目目录，需要你把用户输入的内容转换成 codex skills 并保存，
+1. 需要用户输入以下内容
+  唤醒词: 
+  功能： 
+2. 用户如果没有输入唤醒词，请自行根据功能完成 skill description
+3. 请你根据 skill description 检索当前目录下是否已经存在功能相似的 skill，如果存在，如果用户没有明确覆盖，先提示用户是否更新功能
+    - 尤其要注意中英文是否冲突，比如 commit_english description 是 'commit', commit_chinese description 是 '提交'，这种也要视为 功能相似; 因为大模型是根据语义来判定的
+4. 如果不存在，请你创建一个新的 skill
+5. 生成的 skill 尽量简单, 让大模型能够理解即可
+6. .prompt 目录下，用 {skill_name}.md 文件保存我给你的提示词原文; 后续修改使用{skill_name}_{hhmmss}.md 保存后续版本; 注意，具体的token/url需替换为xxx
+7. a compact description covering:
+    - what the skill handles
+    - when it should trigger
+    - when it should not trigger
+    - a few natural trigger phrases users would actually say
+8. **description should not include:** 
+   - dumping all functionality 
+   - expected input/output 
+   - success criteria
+9. 除非用户特意要求，对应 skill 里面的所有内容， skill.md/代码以及其他所有的内容，都一次性同步修改
+10. 以上文件生成后，自动执行 git add，纳入git管理
