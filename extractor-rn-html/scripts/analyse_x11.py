@@ -6,9 +6,9 @@ import base64
 import json
 from pathlib import Path
 
-from extractor_x11 import RnOllamaClient
-from extractor_x11 import log_event
-from extractor_x11 import read_media_bytes
+from extractor_html_x11 import RnOllamaClient
+from extractor_html_x11 import log_event
+from extractor_html_x11 import read_media_bytes
 
 
 SUPPORTED_IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".bin"}
