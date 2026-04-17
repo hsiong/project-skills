@@ -35,7 +35,7 @@ Use the `skill-creator` skill or manually create a folder with a `SKILL.md` file
 ### Running the Extractor (v2)
 Requires a Linux environment with X11/Xephyr.
 ```bash
-python3 extractor-rn-vision-v2/scripts/extractor_x11.py <url>
+python3 extractor-rn-vision-v2/scripts/extractor_html_x11.py <url>
 ```
 Common options:
 - `--xephyr-session <name>`: Reuse a persistent Xephyr session.
