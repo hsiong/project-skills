@@ -202,6 +202,42 @@ def spawn_background_process(
     )
 
 
+def spawn_detached_user_service(command: list[str], *, env: dict[str, str] | None = None) -> bool:
+    systemd_run = shutil_which("systemd-run")
+    if not systemd_run:
+        return False
+    unit_suffix = hashlib.sha1("\0".join(command).encode("utf-8")).hexdigest()[:10]
+    unit_name = f"extractor-rn-vision-chrome-{int(time.time() * 1000)}-{unit_suffix}"
+    run_command = [
+        systemd_run,
+        "--user",
+        "--quiet",
+        "--collect",
+        "--service-type=exec",
+        "--unit",
+        unit_name,
+    ]
+    if env is not None:
+        base_env = os.environ
+        for key, value in env.items():
+            if base_env.get(key) != value:
+                run_command.extend(["--setenv", f"{key}={value}"])
+        for key in base_env:
+            if key not in env:
+                run_command.extend(["--setenv", f"{key}="])
+    run_command.extend(command)
+    result = subprocess.run(
+        run_command,
+        check=False,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        text=True,
+        close_fds=True,
+    )
+    return result.returncode == 0
+
+
 def open_url(
     url: str,
     *,
@@ -225,6 +261,8 @@ def open_url(
             ]
         )
     command.append(url)
+    if new_window and spawn_detached_user_service(command, env=env):
+        return
     spawn_background_process(command, env=env)
 
 
