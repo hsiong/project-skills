@@ -69,13 +69,13 @@ printf '%s\n' "${XDG_SESSION_TYPE:-}"
 2. If the system is Linux Mint 22, run:
 
 ```bash
-python3 extractor-rn-vision/scripts/extractor_x11.py '<url1>' '<url2>'
+python3 extractor-rn-vision/scripts/extractor_html_x11.py '<url1>' '<url2>'
 ```
 
 or:
 
 ```bash
-python3 extractor-rn-vision/scripts/extractor_x11.py '62 ... https://example.com/a' '88 ... https://example.com/b'
+python3 extractor-rn-vision/scripts/extractor_html_x11.py '62 ... https://example.com/a' '88 ... https://example.com/b'
 ```
 
 Linux Mint 22 X11 session handling:
