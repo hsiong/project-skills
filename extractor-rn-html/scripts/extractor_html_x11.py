@@ -901,6 +901,7 @@ def find_expand_reply_targets(path: Path) -> list[ExpandReplyTarget]:
 
 class XController:
 	def __init__(self) -> None:
+		self.last_pointer_position: tuple[int, int] | None = None
 		try:
 			from Xlib import X, XK, display  # type: ignore
 			from Xlib.ext import xtest  # type: ignore
@@ -948,6 +949,23 @@ class XController:
 		if not self.display:
 			raise RuntimeError("failed to open X11 display")
 		self.root = self.lib_x11.XDefaultRootWindow(self.display)
+
+	def _warp_pointer_to(self, x: int, y: int) -> None:
+		if self.backend == "python-xlib":
+			self.root.warp_pointer(x, y)
+			self.display.sync()
+			self.last_pointer_position = (x, y)
+			return
+		self.lib_x11.XWarpPointer(self.display, 0, self.root, 0, 0, 0, 0, x, y)
+		self.lib_x11.XFlush(self.display)
+		self.lib_x11.XSync(self.display, 0)
+		self.last_pointer_position = (x, y)
+
+	def _pause_after_pointer_move(self, is_final_step: bool = False) -> None:
+		if is_final_step:
+			sleep_randomized(0.11, jitter_ratio=0.8, min_seconds=0.04, max_seconds=0.28)
+			return
+		sleep_randomized(0.06, jitter_ratio=0.95, min_seconds=0.02, max_seconds=0.18)
 	
 	def press_key(self, key_name: str) -> None:
 		if self.backend == "python-xlib":
@@ -963,26 +981,44 @@ class XController:
 		self.lib_x11.XSync(self.display, 0)
 	
 	def move_pointer(self, x: int, y: int) -> None:
-		if self.backend == "python-xlib":
-			self.root.warp_pointer(x, y)
-			self.display.sync()
-			return
-		self.lib_x11.XWarpPointer(self.display, 0, self.root, 0, 0, 0, 0, x, y)
-		self.lib_x11.XFlush(self.display)
-		self.lib_x11.XSync(self.display, 0)
+		start_x, start_y = self.last_pointer_position or (
+			x + random.randint(-120, 120), y + random.randint(-90, 90)
+		)
+		distance = max(abs(x - start_x), abs(y - start_y))
+		step_count = max(3, min(8, distance // 70 + random.randint(1, 3)))
+		overshoot_x = x + random.randint(-6, 6)
+		overshoot_y = y + random.randint(-4, 4)
+		for step_index in range(1, step_count + 1):
+			progress = step_index / step_count
+			target_x = overshoot_x if step_index < step_count else x
+			target_y = overshoot_y if step_index < step_count else y
+			jitter_x = 0 if step_index == step_count else random.randint(-10, 10)
+			jitter_y = 0 if step_index == step_count else random.randint(-8, 8)
+			next_x = int(start_x + (target_x - start_x) * progress) + jitter_x
+			next_y = int(start_y + (target_y - start_y) * progress) + jitter_y
+			self._warp_pointer_to(next_x, next_y)
+			self._pause_after_pointer_move(is_final_step=step_index == step_count)
+		if random.random() < 0.35:
+			settle_x = x + random.randint(-2, 2)
+			settle_y = y + random.randint(-2, 2)
+			self._warp_pointer_to(settle_x, settle_y)
+			sleep_randomized(0.05, jitter_ratio=0.9, min_seconds=0.02, max_seconds=0.14)
+			self._warp_pointer_to(x, y)
 	
 	def click(self, x: int, y: int) -> None:
 		self.move_pointer(x, y)
 		if self.backend == "python-xlib":
-			sleep_randomized(0.2, jitter_ratio=0.4, min_seconds=0.08, max_seconds=0.38)
+			sleep_randomized(0.28, jitter_ratio=0.7, min_seconds=0.12, max_seconds=0.65)
 			self.xtest.fake_input(self.display, self.X.ButtonPress, 1)
 			self.xtest.fake_input(self.display, self.X.ButtonRelease, 1)
 			self.display.sync()
+			sleep_randomized(0.09, jitter_ratio=0.8, min_seconds=0.03, max_seconds=0.24)
 			return
-		sleep_randomized(0.2, jitter_ratio=0.4, min_seconds=0.08, max_seconds=0.38)
+		sleep_randomized(0.28, jitter_ratio=0.7, min_seconds=0.12, max_seconds=0.65)
 		self.lib_xtst.XTestFakeButtonEvent(self.display, 1, 1, 0)
 		self.lib_xtst.XTestFakeButtonEvent(self.display, 1, 0, 0)
 		self.lib_x11.XSync(self.display, 0)
+		sleep_randomized(0.09, jitter_ratio=0.8, min_seconds=0.03, max_seconds=0.24)
 	
 	def scroll_down(self, steps: int, x: int | None = None, y: int | None = None) -> None:
 		if x is not None and y is not None:
@@ -992,13 +1028,17 @@ class XController:
 				self.xtest.fake_input(self.display, self.X.ButtonPress, 5)
 				self.xtest.fake_input(self.display, self.X.ButtonRelease, 5)
 				self.display.sync()
-				sleep_randomized(0.12, jitter_ratio=0.45, min_seconds=0.05, max_seconds=0.26)
+				sleep_randomized(0.18, jitter_ratio=0.9, min_seconds=0.06, max_seconds=0.45)
+				if random.random() < 0.2:
+					sleep_randomized(0.3, jitter_ratio=0.85, min_seconds=0.12, max_seconds=0.72)
 			return
 		for _ in range(steps):
 			self.lib_xtst.XTestFakeButtonEvent(self.display, 5, 1, 0)
 			self.lib_xtst.XTestFakeButtonEvent(self.display, 5, 0, 0)
 			self.lib_x11.XSync(self.display, 0)
-			sleep_randomized(0.12, jitter_ratio=0.45, min_seconds=0.05, max_seconds=0.26)
+			sleep_randomized(0.18, jitter_ratio=0.9, min_seconds=0.06, max_seconds=0.45)
+			if random.random() < 0.2:
+				sleep_randomized(0.3, jitter_ratio=0.85, min_seconds=0.12, max_seconds=0.72)
 	
 	def scroll_up(self, steps: int, x: int | None = None, y: int | None = None) -> None:
 		if x is not None and y is not None:
@@ -1008,13 +1048,17 @@ class XController:
 				self.xtest.fake_input(self.display, self.X.ButtonPress, 4)
 				self.xtest.fake_input(self.display, self.X.ButtonRelease, 4)
 				self.display.sync()
-				sleep_randomized(0.12, jitter_ratio=0.45, min_seconds=0.05, max_seconds=0.26)
+				sleep_randomized(0.18, jitter_ratio=0.9, min_seconds=0.06, max_seconds=0.45)
+				if random.random() < 0.2:
+					sleep_randomized(0.3, jitter_ratio=0.85, min_seconds=0.12, max_seconds=0.72)
 			return
 		for _ in range(steps):
 			self.lib_xtst.XTestFakeButtonEvent(self.display, 4, 1, 0)
 			self.lib_xtst.XTestFakeButtonEvent(self.display, 4, 0, 0)
 			self.lib_x11.XSync(self.display, 0)
-			sleep_randomized(0.12, jitter_ratio=0.45, min_seconds=0.05, max_seconds=0.26)
+			sleep_randomized(0.18, jitter_ratio=0.9, min_seconds=0.06, max_seconds=0.45)
+			if random.random() < 0.2:
+				sleep_randomized(0.3, jitter_ratio=0.85, min_seconds=0.12, max_seconds=0.72)
 
 
 def comment_panel_point(geometry: dict[str, int], y_ratio: float = 0.72) -> tuple[int, int]:
@@ -1511,14 +1555,24 @@ def char_key(char: str) -> tuple[str, bool]:
 
 
 def type_text(controller: XController, text: str, delay_seconds: float = 0.025) -> None:
-	for char in text:
+	for index, char in enumerate(text):
 		key_name, use_shift = char_key(char)
 		if use_shift:
 			key_event(controller, "Shift_L", True)
 		tap_key(controller, key_name)
 		if use_shift:
 			key_event(controller, "Shift_L", False)
-		sleep_randomized(delay_seconds, jitter_ratio=0.55, min_seconds=0.01, max_seconds=max(0.08, delay_seconds * 2.4))
+		per_char_delay = delay_seconds * random.uniform(1.2, 2.4)
+		if char in ":/?&=._-":
+			per_char_delay *= random.uniform(1.2, 1.8)
+		sleep_randomized(
+			per_char_delay,
+			jitter_ratio=0.95,
+			min_seconds=0.012,
+			max_seconds=max(0.16, per_char_delay * 3.2),
+		)
+		if index > 0 and index % 6 == 0 and random.random() < 0.28:
+			sleep_randomized(0.22, jitter_ratio=0.9, min_seconds=0.08, max_seconds=0.58)
 
 
 def read_clipboard_text(timeout_seconds: float = 5.0) -> str:
@@ -2223,6 +2277,8 @@ def build_report(manifests: list[dict[str, object]]) -> str:
 		lines.extend(format_multiline(manifest.get("互动数据"), "(empty)"))
 		lines.extend(["", "### 图片", ""])
 		lines.extend(format_multiline(manifest.get("图片"), "[]"))
+		lines.extend(["", "### 图片识别", ""])
+		lines.extend(format_multiline(manifest.get("图片识别"), "[]"))
 		lines.extend(["", "### 视频", ""])
 		lines.extend(format_multiline(manifest.get("视频"), "[]"))
 		lines.extend(["", ""])
@@ -2539,8 +2595,8 @@ def main() -> int:
 		result, client, image_limit=args.image_limit, video_limit=args.video_limit) for
 		item_index, result in enumerate(results, start=1)]
 	
-	(out_dir / "REPORT.md").write_text(build_report(manifests), encoding="utf-8")
-	log_event("main.report_done", manifest_count=len(manifests), report_path=out_dir / "REPORT.md")
+	(out_dir / "RESULT.md").write_text(build_report(manifests), encoding="utf-8")
+	log_event("main.report_done", manifest_count=len(manifests), report_path=out_dir / "RESULT.md")
 	print(str(out_dir))
 	return 0
 
