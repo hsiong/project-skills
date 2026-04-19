@@ -6,7 +6,9 @@ import base64
 import json
 from pathlib import Path
 
+import extractor_html_x11
 from extractor_html_x11 import RnOllamaClient
+from extractor_html_x11 import build_report
 from extractor_html_x11 import log_event
 from extractor_html_x11 import read_media_bytes
 
@@ -14,11 +16,19 @@ from extractor_html_x11 import read_media_bytes
 SUPPORTED_IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".bin"}
 
 
+
 def collect_item_manifest_paths(output_dir: Path) -> list[Path]:
+    def item_index(path: Path) -> int:
+        # path.parent.name like: item_1 / item_2 / item_10
+        return int(path.parent.name.removeprefix("item_"))
+
     return sorted(
-        path
-        for path in output_dir.glob("item_*/manifest.json")
-        if path.parent.name.startswith("item_")
+        (
+            path
+            for path in output_dir.glob("item_*/manifest.json")
+            if path.parent.name.startswith("item_")
+        ),
+        key=item_index,
     )
 
 
@@ -79,6 +89,18 @@ def analyze_output_dir(
     return manifests
 
 
+def rebuild_report(output_dir: Path) -> Path:
+    manifests = [
+        json.loads(manifest_path.read_text(encoding="utf-8"))
+        for manifest_path in collect_item_manifest_paths(output_dir)
+    ]
+    extractor_html_x11.ROOT_DIR = output_dir
+    report_path = output_dir / "RESULT.md"
+    report_path.write_text(build_report(manifests), encoding="utf-8")
+    log_event("image_analysis.report.done", manifest_count=len(manifests), report_path=report_path)
+    return report_path
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Use Ollama to analyze item images and write results back to manifest.json.")
     parser.add_argument("--out-dir", default="", help="Extractor output directory containing item_*/manifest.json")
@@ -96,6 +118,7 @@ def main() -> int:
         timeout=args.ollama_timeout,
     )
     analyze_output_dir(output_dir, client)
+    rebuild_report(output_dir)
     print(str(output_dir))
     return 0
 
