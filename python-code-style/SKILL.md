@@ -1,6 +1,6 @@
 ---
 name: python-code-style
-description: "当用户要生成、补全、修改或评审 Python 代码时触发，例如“写个 FastAPI 接口”“补个脚本”“改个工具方法”。它按现有项目风格做最小必要改动；不用于前端、纯运维或需要大规模重构的任务。"
+description: "当用户要生成、补全、修改或评审 Python 代码时触发。它按现有项目风格做最小必要改动；不用于前端、纯运维或需要大规模重构的任务。"
 ---
 
 # Python Code Style
