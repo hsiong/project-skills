@@ -1,0 +1,7 @@
+interface:
+  display_name: "日报生成助手"
+  short_description: "根据当天 Git 提交记录整理中文工作日报"
+  default_prompt: "Use $daily_report to read today's Git commits in the current repository and turn them into a concise Chinese daily work report without modifying files or creating commits."
+
+policy:
+  allow_implicit_invocation: true
