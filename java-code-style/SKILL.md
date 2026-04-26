@@ -13,6 +13,7 @@ description: "当用户要生成、补全、修改或评审 Java 后端代码时
 - 多个代码块有复用代码的，抽离为工具类或私有方法，避免重复代码
 - 如果没有复用代码，直接保留在一个完整的大方法中，优先保证调用链直观
 - 新增代码时优先做最小必要改动，不顺手扩展范围，不主动重构整条链路
+- 除非用户明确要求，直接修改相关代码即可
 
 ## 注释
 
@@ -64,6 +65,7 @@ public List<OrderVO> queryValidOrders(Long userId, boolean includeClosed) {
 - 必填校验注解必须补充 `message`，格式优先使用“xxx不能为空”。
 - 字符串类型必填优先使用 `@NotBlank`；非字符串对象、数字或集合是否为空校验按类型选择 `@NotNull`。
 - DTO 不要使用内部类
+- 生成 request DTO 时，同步补齐 `@Schema`、必填校验注解和 `message`。
 
 示例：
 
@@ -82,24 +84,6 @@ public class CreateOrderRequestDTO {
 }
 ```
 
-## Controller 约束
-
-- Controller 方法使用 `@Operation` 描述接口用途。
-- 优先使用 Post 请求，除非用户明确要求或场景天然更适合 Get。
-- 查询接口方法名以 `getXXX` 形式命名。
-- Controller 返回统一使用 `Result` 类。
-- Controller 内部只做收参、基础校验、调用 service、封装 `Result`，不要下沉业务实现。
-
-示例：
-
-```java
-@PostMapping("/getOrderDetail")
-@Operation(summary = "查询订单详情")
-public Result<OrderDetailVO> getOrderDetail(@Validated @RequestBody OrderDetailRequestDTO requestDTO) {
-    return Result.success(orderService.getOrderDetail(requestDTO));
-}
-```
-
 ## 配置项约束
 
 - 禁止访问任何 `application-*.yml` 文件，但可以访问 `application.yml`
@@ -115,17 +99,44 @@ public Result<OrderDetailVO> getOrderDetail(@Validated @RequestBody OrderDetailR
 - 测试优先覆盖主流程、关键分支和明显边界，不写过度复杂的构造逻辑。
 - 无需你自动测试，我自行手动测试即可
 
+## Controller 约束
+
+- Controller 方法使用 `@Operation` 描述接口用途。
+- 优先使用 Post 请求，除非用户明确要求或场景天然更适合 Get。
+- 查询接口方法名以 `getXXX` 形式命名。
+- Controller 返回统一使用 `Result` 类。
+- Controller 内部只做收参、基础校验、调用 service、封装 `Result`，不要下沉业务实现。
+- 生成 controller 时，只保留参数接收、基础校验、调用 service、封装返回。
+- 生成接口定义时，保证命名、入参、返回值和实现类保持一致。
+- 生成 controller 时，同步检查是否满足 `@Operation`、Post 优先、查询接口 `getXXX`、`Result` 返回这几项约束。
+
+
+示例：
+
+```java
+@PostMapping("/getOrderDetail")
+@Operation(summary = "查询订单详情")
+public Result<OrderDetailVO> getOrderDetail(@Validated @RequestBody OrderDetailRequestDTO requestDTO) {
+    return Result.success(orderService.getOrderDetail(requestDTO));
+}
+```
+
+
+
 ## 生成代码时的执行方式
 
-- 生成 controller 时，只保留参数接收、基础校验、调用 service、封装返回。
 - 生成 service 方法时，把主要逻辑写完整，不要只留“TODO”或空壳实现。
-- 生成接口定义时，保证命名、入参、返回值和实现类保持一致。
-- 生成 request DTO 时，同步补齐 `@Schema`、必填校验注解和 `message`。
-- 生成 controller 时，同步检查是否满足 `@Operation`、Post 优先、查询接口 `getXXX`、`Result` 返回这几项约束。
-- 除非用户明确要求，直接修改相关代码即可
 - 使用框架内已有的日志工具，在关键节点 加入 日志打印
 - 缩进使用 tab
 - keep indents on empty lines
+- Avoid passing complex expressions, chained calls, or request getters directly into method parameters. Extract method inputs into clearly named local variables first, then pass those variables to the method. This makes the business meaning of each parameter explicit, improves readability, and makes future validation, logging, debugging, and null checks easier.
+  ```
+  String profileId = request.getProfileId();
+  CustomerDingTalkRobotDTO customerInfo =
+        restCustomDataService.getDingTalkRobotCustomer(profileId);
+  # Instead of:
+  # CustomerDingTalkRobotDTO customerInfo = restCustomDataService.getDingTalkRobotCustomer(request.getProfileId());
+  ```
 
 
 
