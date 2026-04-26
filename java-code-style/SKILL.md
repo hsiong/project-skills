@@ -124,6 +124,7 @@ public Result<OrderDetailVO> getOrderDetail(@Validated @RequestBody OrderDetailR
 
 ## sql
 + 如涉及到表操作, 请将 sql 保存到 file/sql 目录下, sql 文件命名为 `{ddyyhhmmss}.sql`
++ 如果表已经存在, 请不要直接改动建表语句, 而是使用 'alter table' 命令
 
 ## 生成代码时的执行方式
 
