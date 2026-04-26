@@ -59,6 +59,7 @@ Demo：
 - request DTO 字段补齐 `@Schema` 和必要的校验注解。
 - request DTO 要使用 `@JsonInclude(JsonInclude.Include.NON_NULL)` 注解，避免传入 `null` 值
 - response DTO 字段语义要明确，避免直接返回原始嵌套 `Map`。
+- DTO 只包含要传给远程的字段和数据
 - FeignClient 方法名按业务语义命名，不写成无意义的 `invoke`、`call`。
 - service 中补充必要注释，重点说明参数转换、异常分支和接口结果判定。
 - 如果对方接口返回是通用包裹结构，Decoder 负责统一拆包；service 不要重复写同样的拆包逻辑。
