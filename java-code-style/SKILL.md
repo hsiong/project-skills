@@ -108,7 +108,6 @@ public Result<OrderDetailVO> getOrderDetail(@Validated @RequestBody OrderDetailR
 - 新增的`${config.xxx}`无需写在配置文件里，直接在 terminal 日志中打印新增 key 和建议值。
 - 打印时优先给出可直接复制的配置片段，保持 key 层级完整。
 - 使用 `xxxProperties` 命名
-- 各类配置
 
 ## 测试代码约定
 
@@ -126,6 +125,7 @@ public Result<OrderDetailVO> getOrderDetail(@Validated @RequestBody OrderDetailR
 - 除非用户明确要求，直接修改相关代码即可
 - 使用框架内已有的日志工具，在关键节点 加入 日志打印
 - 缩进使用 tab
+- keep indents on empty lines
 
 
 
