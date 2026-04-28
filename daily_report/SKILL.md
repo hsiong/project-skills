@@ -27,7 +27,7 @@ description: "当用户要根据 Codex 对话历史和相关 Git 仓库改动生
    - 当天提交：`git log --since="00:00" --name-status --pretty=format:"%h%x09%an%x09%ad%x09%s" --date=iso-local`
    - 指定日期：按该日期 00:00 到次日 00:00 查询。
    - 工作区改动：必要时查看 `git status --short`、`git diff --name-status`、`git diff --cached --name-status`。
-7. Git 改动可能包含用户手动修改和 Codex 修改，不要默认写成“assistant/Codex 完成”；统一表述为“项目发生的改动”或“为解决问题完成的改动”。
+7. Git 改动可能包含用户手动修改和 Codex 修改。
 8. 用“对话里遇到的问题和意图”作为日报问题来源，用“Git 改动”作为完成成果来源，交叉印证后合并相近事项。
 9. 如果对话历史不存在或没有相关内容，再根据 Git 改动自行分析总结出了什么问题，并标注 `归纳: xxxxx`。
 10. 如果对话历史和 Git 改动都没有有效信息，直接说明今天没有查到可生成日报的内容，并给出空日报或简短说明。
