@@ -1,7 +1,7 @@
 interface:
   display_name: "日报生成助手"
-  short_description: "根据当天 Codex 对话历史和 Git 改动整理中文工作日报"
-  default_prompt: "Use $daily_report to read today's Codex session history first, then combine it with Git commits or workspace changes to write a concise Chinese daily work report without modifying project code or creating commits."
+  short_description: "根据当天 Codex 对话历史反推相关 Git 项目，并结合真实改动整理中文日报"
+  default_prompt: "Use $daily_report to read today's Codex session history, infer related Git repositories from session_meta.payload.cwd, then combine conversation items with each repository's real commits and workspace changes to write a concise Chinese daily work report without modifying project code or creating commits."
 
 policy:
   allow_implicit_invocation: true
