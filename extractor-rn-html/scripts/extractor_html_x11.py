@@ -549,6 +549,23 @@ def open_url_in_existing_window(window_id: str,
 	log_event("chrome.tab.open.done", window_id=window_id, mode="keyboard-fallback")
 
 
+def close_current_tab(window: ChromeWindow | None) -> None:
+	if window is None:
+		return
+	log_event("chrome.tab.close.start", window_id=window.window_id, title=window.title)
+	try:
+		activate_window(window.window_id)
+		sleep_randomized(0.2, jitter_ratio=0.35, min_seconds=0.08, max_seconds=0.45)
+		controller = XController()
+		controller.press_key("Escape")
+		sleep_randomized(0.12, jitter_ratio=0.4, min_seconds=0.04, max_seconds=0.25)
+		key_combo(controller, ["Control_L"], "w")
+		sleep_randomized(0.25, jitter_ratio=0.35, min_seconds=0.1, max_seconds=0.5)
+		log_event("chrome.tab.close.done", window_id=window.window_id)
+	except Exception as exc:  # noqa: BLE001
+		log_event("chrome.tab.close.error", window_id=window.window_id, error=str(exc), is_error=True)
+
+
 def save_window_screenshot(window_id: str, path: Path) -> None:
 	xwd_path = path.with_suffix(".xwd")
 	try:
@@ -2486,8 +2503,11 @@ def capture_item(url: str,
 		precheck_status_code=precheck.status_code,
 		precheck_location=precheck.location,
 		stop_reason=stop_reason, )
-	html_path = export_current_html(result)
-	result.html_path = html_path
+	try:
+		html_path = export_current_html(result)
+		result.html_path = html_path
+	finally:
+		close_current_tab(target_window)
 	return result
 
 
