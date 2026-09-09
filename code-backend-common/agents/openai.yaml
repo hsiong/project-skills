@@ -1,7 +1,6 @@
 interface:
-  display_name: "Java代码规范"
-  short_description: "按现有项目风格生成最小改动的 Java 代码"
-  default_prompt: "Use $code-backend-java-style to generate or revise Java backend code with project-consistent layering, validation, comments, and minimal structural change."
+  display_name: "代码通用规范"
+  short_description: "代码通用规范"
 
 policy:
   allow_implicit_invocation: true
