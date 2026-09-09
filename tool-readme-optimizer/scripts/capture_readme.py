@@ -646,7 +646,7 @@ async def capture(config: dict[str, Any]) -> None:
         merged_capture(defaults, raw_capture) for raw_capture in config["captures"]
     ]
     base_url = config["base_url"].rstrip("/") + "/"
-    output_dir = Path(config.get("output_dir", "docs/images/readme"))
+    output_dir = Path(config.get("output_dir", ".docs/images/readme"))
 
     browser_channel = config.get("browser_channel")
     if browser_channel is not None and (
