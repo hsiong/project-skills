@@ -53,7 +53,7 @@ etf_assistant/
 - 依赖需要加入版本
 - 依赖文件中如果缺乏 `-i https://pypi.tuna.tsinghua.edu.cn/simple`, 自动补充
 - 禁止自动修改依赖文件名称
-- 该项目下的所有项目，执行测试时，应使用项目依赖，禁止使用全局 pip 污染全局依赖；没有项目环境时 使用临时环境 `/tmp/项目名/bin/python`，但是临时环境结束后要移除
+- 执行测试时，应使用项目依赖，禁止使用全局 pip 污染全局依赖；没有项目环境时 使用临时环境 `/tmp/项目名/bin/python`，但是临时环境结束后要移除
 
 ## 配置项约束
 - 新增的配置项，放到 `config/settings.py` 中, 比如 `POSTGRES_URL = env.get("POSTGRES_URL")`, 不需要默认值；新增的具体配置, 直接在 terminal 日志中打印新增 key 和建议值, 比如 `POSTGRES_URL=xxx`
