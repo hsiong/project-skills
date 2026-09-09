@@ -4,7 +4,7 @@ set -euo pipefail
 
 TOKEN="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
 REPO="${1:-${GITHUB_REPOSITORY:-}}"
-ISSUE_DIR="${2:-file/issue}"
+ISSUE_DIR="${2:-docs/issue}"
 
 if [ -z "$TOKEN" ]; then
     echo "error: set GITHUB_TOKEN or GH_TOKEN before submitting issues"
