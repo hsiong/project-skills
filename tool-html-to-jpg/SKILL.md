@@ -10,7 +10,7 @@ Use the bundled `scripts/html_to_jpg.py` to render a local HTML file with Chrome
 ## Workflow
 
 1. Resolve the input HTML path and optional output path. Use absolute paths in commands.
-2. If Pillow is unavailable, install `requirements.txt` in the user's active Python environment. Do not install or upgrade packages unnecessarily.
+2. When executing or testing, use project dependencies; never use global pip to pollute global dependencies. If no project environment exists, create and use a temporary environment at `/tmp/tool-html-to-jpg/bin/python`, and remove the temporary environment after execution finishes.
 3. Ensure a supported browser is installed. If automatic discovery fails, ask the user for its executable path and set `CHROME_PATH` for the command.
 4. Run:
 
