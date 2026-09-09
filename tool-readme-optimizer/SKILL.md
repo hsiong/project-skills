@@ -32,7 +32,7 @@ Turn a repository's real product experience into a README that helps a new visit
 - For a CLI, library, model, or infrastructure project, prefer the visual evidence that best fits the claim: a terminal transcript, rendered result, benchmark chart, architecture diagram, model table, or workflow trace.
 - Never fabricate a product screenshot. Generated artwork may serve as clearly decorative branding, but not as evidence of implemented behavior. If the project cannot be run, reuse verified assets or create a fact-based diagram and report the missing capture rather than disguising it.
 - Inspect every captured bitmap at full resolution and compare it with the live product before embedding it. Treat missing styles, fonts, images, data, or partially rendered states as capture failures even when the capture command exits successfully.
-- Store durable assets under the repository's existing documentation convention, or `docs/images/readme/` when none exists. Use descriptive names, useful alt text, and captions that state what the image proves.
+- Store durable assets under the repository's existing documentation convention, or `../.docs/images/readme/` when none exists. Use descriptive names, useful alt text, and captions that state what the image proves.
 - Work section by section: draft the claim and its proof slot, acquire the missing asset, then revise the wording to match what the asset actually demonstrates. Do not complete all captures before writing or force final copy around an unverified capture plan.
 
 ### 4. Refine the decision order
@@ -51,7 +51,7 @@ Use the repository's audience language. Keep commands copyable, examples concret
 
 ### 5. Publish and verify both editions
 
-- Write the root `README.md` in English and a complete Simplified Chinese edition at `docs/zh-CN/README-cn.md`; do not reduce the Chinese edition to a summary.
+- Write the root `README.md` in English and a complete Simplified Chinese edition at `../.docs/zh-CN/README-cn.md`; do not reduce the Chinese edition to a summary.
 - Put `English | [简体中文](docs/zh-CN/README-cn.md)` near the top of the English edition and `[English](../../README.md) | 简体中文` in the corresponding position of the Chinese edition.
 - Keep their section order, claims, commands, warnings, status labels, and visuals equivalent. Translate reader-facing prose, alt text, and captions naturally; preserve code, identifiers, filenames, environment variables, package names, and URLs.
 - Resolve every local link, image, recording, and anchor from each file's location. Update both editions whenever the narrative or evidence changes.
