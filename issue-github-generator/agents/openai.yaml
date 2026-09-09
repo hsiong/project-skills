@@ -1,7 +1,7 @@
 interface:
   display_name: "GitHub Issue Writer"
   short_description: "按当前 Git 改动拆分、查重并生成英文 issue 草稿"
-  default_prompt: "Use $issue-github-generator to inspect only allowed git-known changes, split them by focused function like commit grouping, check existing GitHub issues for duplicates before drafting, then write English Markdown issue drafts under file/issue/. Only submit them by running scripts/submit_issues.sh when explicitly asked."
+  default_prompt: "Use $issue-github-generator to inspect only allowed git-known changes, split them by focused function like commit grouping, check existing GitHub issues for duplicates before drafting, then write English Markdown issue drafts under docs/issue/. Only submit them by running scripts/submit_issues.sh when explicitly asked."
 
 policy:
   allow_implicit_invocation: true
