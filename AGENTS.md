@@ -8,7 +8,7 @@
     - 尤其要注意中英文是否冲突，比如 commit_english description 是 'commit', commit_chinese description 是 '提交'，这种也要视为 功能相似; 因为大模型是根据语义来判定的
 4. 如果不存在，请你创建一个新的 skill
 5. 生成的 skill 尽量简单, 并使用英文, 让大模型能够理解即可
-6. skill 中存在 Python 脚本时，必须在该 skill 根目录配置 `requirements.txt`，并与 Python 代码依赖同步更新
+6. skill 中存在 Python 脚本时，必须在该 skill 根目录配置 `requirements.txt`，并与 Python 代码依赖同步更新；执行测试或运行时，应使用项目依赖，禁止使用全局 pip 污染全局依赖；没有项目环境时使用临时环境 `/tmp/项目名/bin/python`，临时环境结束后要移除
 7. a compact description covering:
     - what the skill handles
     - when it should trigger
