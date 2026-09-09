@@ -1,298 +1,274 @@
-# Codex-skills
+# Project Skills (`codex-skills`)
 
+<p align="center">
+  <strong>Curated, production-grade AI agent skills for OpenAI Codex, Gemini CLI, Claude CLI, and Antigravity.</strong><br>
+  Equip coding assistants with zero-branch Git automation, strict multi-language engineering standards, and high-impact developer tooling.
+</p>
 
-> + Globle dir: ~/.agents/skills
-> + Repo dir: project/.agents/skills
-> + 
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License: Apache 2.0"></a>
+  <img src="https://img.shields.io/badge/Skills-11%20Production%20Ready-success.svg" alt="Skills: 11 Production Ready">
+  <img src="https://img.shields.io/badge/Runtimes-Codex%20%7C%20Gemini%20CLI%20%7C%20Claude%20CLI%20%7C%20Antigravity-blueviolet.svg" alt="Runtimes: Codex | Gemini CLI | Claude CLI | Antigravity">
+  <img src="https://img.shields.io/badge/Standard-Agents%20Skill%20Spec-informational.svg" alt="Agents Skill Spec">
+</p>
 
+<p align="center">
+  English | <a href=".docs/zh-CN/README-cn.md">简体中文</a>
+</p>
 
-A Codex skill is just a **folder** with a required `SKILL.md` file, plus optional helper files. The current official structure is: 
-
-```
-my-skill/
-├─ SKILL.md              # required
-├─ scripts/              # optional executable helpers
-├─ references/           # optional docs/specs/examples
-├─ assets/               # optional templates/resources
-└─ agents/
-   └─ openai.yaml        # optional metadata/dependencies
-```
-
-The minimum valid skill is even simpler: a folder with just `SKILL.md`, and that file must include YAML front matter with at least `name` and `description`. 
-
-## 1) Smallest working skill
-
-```
----
-name: my-review-skill
-description: Use this skill when reviewing Python code for readability, error handling, and obvious performance issues. Do not use it for frontend/UI design or infrastructure work.
 ---
 
-When using this skill:
+## ⚡ Overview
 
-1. Read the target code before suggesting changes.
-2. Check for:
-   - obvious bugs
-   - missing error handling
-   - naming problems
-   - unnecessary complexity
-3. Prefer minimal changes over large rewrites.
-4. When giving feedback:
-   - explain the issue
-   - show the fix
-   - mention tradeoffs if any
-```
+**Project Skills** is a battle-tested repository of specialized skills designed for AI coding agents (OpenAI Codex, Gemini CLI, Claude CLI, Antigravity, and other skill-aware autonomous coding environments). 
 
-That is enough for Codex to discover and use it. Codex first sees the skill metadata (`name`, `description`) for discovery, then loads the full `SKILL.md` only if it decides the skill is relevant. 
+Instead of letting AI assistants make loose assumptions, invent uncontrolled git branches, or pollute codebases with oversized diffs, this collection enforces:
 
-## 2) What each part does
+- 🛡️ **Hard Safety & Boundary Guardrails**: Proactive scans for hardcoded secrets, `TODO` markers, and sensitive configuration files prior to staging or committing.
+- 🚀 **Zero-Pollution Git Workflows**: Direct remote issue pushes (`HEAD:fix/<issue_code>`) without local branch clutter, plus automated conventional commit splitting.
+- 📐 **Rigorous Engineering Standards**: Production-tested architectural conventions for Java (Spring Boot / OpenFeign), Python, and React that enforce minimal necessary diffs and clean layering.
+- 🛠️ **Developer Productivity Tooling**: Automated bilingual README generation, session-to-daily-report compilation, and headless HTML-to-JPG rendering.
 
-### `SKILL.md`
-
-This is the core of the skill.
-
-It usually contains:
-
-- YAML front matter
-- when the skill should be used
-- when it should **not** be used
-- step-by-step workflow
-- output format expectations
-- guardrails
-
-A good `description` is very important, because Codex can choose skills implicitly based on whether the task matches that description. 
-
-A practical template:
-
-```
----
-name: skill-name
-description: Use this skill when ____. Do not use it when ____.
 ---
 
-# Purpose
-What this skill helps with.
+## 🧩 Architecture & Workflow
 
-# When to use
-- case A
-- case B
+AI agents dynamically discover skills from metadata (`name` and `description`) up front, loading full instructions and scripts only when relevant user intent or explicit commands match.
 
-# When not to use
-- case X
-- case Y
+```mermaid
+flowchart TD
+    User(["User Prompt / Task"]) --> Router{"Agent Skill Router"}
+    
+    subgraph Discovery ["Skill Discovery (~/.agents/skills)"]
+        Router -->|"Intent Matching"| Meta["Scan YAML Frontmatter (name, description)"]
+        Meta -->|"Activate on Relevance"| LoadedSkill["Load Full SKILL.md Instructions"]
+    end
 
-# Workflow
-1. First do ...
-2. Then check ...
-3. Finally produce ...
+    subgraph Execution ["Disciplined Execution"]
+        LoadedSkill --> SafetyGate{"Safety Gates & Boundary Checks"}
+        SafetyGate -->|"Secret / TODO Detected"| Abort["Abort & Report File + Line"]
+        SafetyGate -->|"Passed"| Action{"Execute Specialized Task"}
+        
+        Action --> GitFlow["Git / Issue Operations\n(Atomic Commits, Remote Direct Push)"]
+        Action --> CodeGen["Code Generation\n(Minimal Diff, Architecture Conventions)"]
+        Action --> Tools["Developer Tools\n(Playwright Capture, Daily Reports)"]
+    end
 
-# Rules
-- Prefer ...
-- Avoid ...
-- Never ...
-
-# Output
-Return:
-- summary
-- risks
-- next steps
+    GitFlow --> Result(["Clean, Verified Delivery"])
+    CodeGen --> Result
+    Tools --> Result
 ```
 
-## 3) Optional folders
+---
 
-### `scripts/`
+## 📦 Skill Catalog
 
-Put helper scripts here when the skill needs repeatable automation.
+The repository currently includes **11 production-ready skills** across three core domains:
 
-Example:
+### 1. Git & Version Control Automation
 
-```
-my-skill/
-├─ SKILL.md
-└─ scripts/
-   └─ validate.py
-```
+| Skill | Primary Triggers | Description & Core Value | Key Guardrails & Boundaries |
+| :--- | :--- | :--- | :--- |
+| [`git-commit`](git-commit/SKILL.md) | `commit`, `提交`, `中文 commit`, `English commit`, split into commits | Safely groups and generates conventional commits from Git-known changes. | Blocks on `TODO` and leaked secrets; never pushes; ignores untracked files; splits by business boundary. |
+| [`issue-commit`](issue-commit/SKILL.md) | `issue commit: #<id> ...` (e.g., `issue commit: #25 fix null pointer`) | Pushes mapped changes directly to remote `fix/<issue_code>` branch and generates a GitHub PR link. | **Zero local branches**; rolls back local commit with `git reset --soft HEAD~1`; never touches untracked files. |
+| [`issue-github-generator`](issue-github-generator/SKILL.md) | `生成 issue`, `根据这次改动提 issue`, `按功能拆 issue` | Inspects current Git diffs, deduplicates against remote GitHub issues, and drafts structured English issues. | Read-only diff inspection; splits by single responsibility; does not commit or alter source code. |
 
-Then in `SKILL.md` you can instruct Codex to run it when needed, for example:
+### 2. Engineering Standards & Code Styles
 
-```
-If the repository contains Python config files, run:
+| Skill | Primary Triggers | Description & Core Value | Key Guardrails & Boundaries |
+| :--- | :--- | :--- | :--- |
+| [`code-backend-common`](code-backend-common/SKILL.md) | Invoked implicitly by other coding skills | Shared backend foundations: method simplicity, SQL schema standards, strict modification boundaries. | Forbids unrelated refactoring, wrapper-only overloads, raw `Map` usage, or untracked file additions. |
+| [`code-backend-java-style`](code-backend-java-style/SKILL.md) | Java backend generation, completion, review | Enforces Spring Boot layering: Controller `@Operation`, unified `Result`, DTO validations, JavaDoc. | Controller only routes; business logic lives in Service; DTOs separated without inner classes; no partial entity updates. |
+| [`code-backend-java-feign-style`](code-backend-java-feign-style/SKILL.md) | `接一个 Feign 接口`, `补 decoder`, `补 interceptor` | Standardizes declarative HTTP clients using OpenFeign with matched DTOs, decoders, and error handling. | Minimal integration diff; follows existing project Feign conventions without rewriting upstream clients. |
+| [`code-backend-python-style`](code-backend-python-style/SKILL.md) | Python code creation, refactoring, review | Generates idiomatic Python code with type hints, structured logging, and clean modular boundaries. | Produces minimal necessary changes; avoids unnecessary abstractions and framework bloat. |
+| [`code-front-react-style`](code-front-react-style/SKILL.md) | React components, hooks, signals, UI fixes | Enforces modern React/Tailwind best practices, component modularity, and strict layout preservation. | Preserves existing layout; avoids unnecessary CSS overrides; minimal diffs with clear state lifecycles. |
 
-python scripts/validate.py
-```
+### 3. Developer Tooling & Media Automation
 
-### `references/`
+| Skill | Primary Triggers | Description & Core Value | Key Guardrails & Boundaries |
+| :--- | :--- | :--- | :--- |
+| [`tool-readme-optimizer`](tool-readme-optimizer/SKILL.md) | `rewrite the README`, `优化 readme`, `/tool-readme-optimizer` | Generates conversion-focused, bilingual (EN/ZH) GitHub landing pages with evidence-led structure. | Verifies all claims against real code; mandates dual English and Simplified Chinese editions. |
+| [`tool-daily-report`](tool-daily-report/SKILL.md) | `日报`, `生成今日日报`, `今日行为` | Compiles daily engineering work reports by correlating agent session history with actual Git changes. | Factual summaries based on verified diffs; does not execute commits or alter code. |
+| [`tool-html-to-jpg`](tool-html-to-jpg/SKILL.md) | `convert this HTML to JPG`, `render webpage as JPEG` | Headless Chromium automation via Playwright/Pillow to capture high-resolution local HTML snapshots. | Confined to local HTML files; prevents arbitrary external web scraping. |
 
-Put docs, examples, schemas, style guides, SQL snippets, API conventions here.
+---
 
-Example:
+## 🔬 Proof in Action
 
-```
-references/
-├─ api-style.md
-├─ db-schema.sql
-└─ example-output.json
-```
+### Example 1: Safe Git Commit Splitting (`git-commit`)
 
-Use this for project-specific knowledge that the model would not reliably know on its own. Official guidance recommends being concise and only adding information Codex truly needs. 
-
-### `assets/`
-
-Use for templates or reusable files.
-
-Example:
-
-```
-assets/
-├─ pr_template.md
-└─ changelog_template.md
-```
-
-### `agents/openai.yaml`
-
-Optional metadata/dependency file. Official docs note Codex can also read optional metadata from `agents/openai.yaml`, and MCP dependencies can be declared there when a skill depends on external tools/services. 
-
-## 4) Where to put the skill
-
-For Codex, the documented locations are: 
-
-- **Global/user skills**: `$HOME/.agents/skills`
-- **Repo skills**: `.agents/skills` inside the repository
-
-So for a repo-local skill:
-
-```
-your-project/
-└─ .agents/
-   └─ skills/
-      └─ my-review-skill/
-         └─ SKILL.md
+```text
+User: "commit these changes in English"
+Agent:
+1. Scanning candidate files for secrets and TODOs... [PASSED]
+2. Analyzing git diff across 4 files...
+   - src/main/java/com/demo/controller/OrderController.java (+24, -2)
+   - src/main/java/com/demo/service/OrderService.java (+45, -5)
+   - src/main/resources/application.yml (EXCLUDED by security policy)
+   - docs/api.md (+12, -0)
+3. Staging and committing in discrete business groups:
+   - Commit 1 (feat): feat(order): add batch query endpoint for active orders
+   - Commit 2 (docs): docs(api): document batch query request parameters
+4. Summary: 2 commits created, 0 unreviewed files pushed.
 ```
 
-For a global personal skill:
+### Example 2: Zero-Local-Branch Issue Delivery (`issue-commit`)
 
+```text
+User: "issue commit: #42 fix order calculation precision bug"
+Agent:
+1. Parsed Issue: #42 ("fix order calculation precision bug")
+2. Mapped changed files: src/main/java/com/demo/service/CalculatorService.java
+3. Created atomic commit: fix: calculate order precision correctly (#42)
+4. Pushed directly to remote:
+   git push origin HEAD:fix/42
+5. Reset local working state (zero branch clutter):
+   git reset --soft HEAD~1
+6. Ready! Create Pull Request via:
+   🔗 https://github.com/hsiong/project-skills/pull/new/fix/42
 ```
-~/.agents/skills/my-review-skill/SKILL.md
+
+---
+
+## 🚀 Quick Start
+
+### Step 1: Clone the Repository
+
+Clone to the standard agent skills path:
+
+```bash
+# Clone to standard user skills directory
+git clone git@github.com:hsiong/project-skills.git ~/.agents/skills
+```
+
+### Step 2: Configure Runtime Discovery
+
+Skills can be discovered by OpenAI Codex, Gemini CLI, Claude CLI, and Antigravity.
+
+#### For OpenAI Codex
+Codex detects skills in `~/.agents/skills` (user-global) and `<repo>/.agents/skills` (workspace-local) automatically.
+
+#### For Gemini CLI
+To share skills seamlessly with Gemini CLI:
+
+```bash
+# Create symbolic link for Gemini CLI skill discovery
 ln -sfn ~/.agents/skills ~/.gemini/skills
 ```
 
-## 5) How to create one quickly
+#### For Claude CLI (Claude Code)
+Claude CLI discovers personal skills from `~/.claude/skills` and project-scoped skills from `.claude/skills`.
 
-Yes, **`$skill-creator` is the official built-in way** to start. The Codex docs explicitly recommend using it first. It asks what the skill does, when it should trigger, and whether it needs scripts or can stay instruction-only. 
+To share skills globally with Claude CLI:
 
-So inside Codex, you can use:
-
-```
-$skill-creator
-```
-
-If you want to install curated or experimental skills from the OpenAI skills catalog, the official repo says to use `$skill-installer`. 
-
-## 6) Example: a useful real skill
-
-Suppose you want a skill for Java backend API review.
-
-Folder:
-
-```
-.agents/skills/java-api-review/
-├─ SKILL.md
-├─ references/
-│  └─ conventions.md
-└─ scripts/
-   └─ run_checks.sh
+```bash
+# Create symbolic link for Claude CLI skill discovery
+mkdir -p ~/.claude
+ln -sfn ~/.agents/skills ~/.claude/skills
 ```
 
-`SKILL.md`:
+To configure skills for a specific project with Claude CLI:
 
+```bash
+# Link project-level skills for Claude CLI
+ln -sfn .agents/skills .claude/skills
 ```
+
+#### For Repository-Level Installation
+To pin specific skills directly inside a project repository:
+
+```bash
+mkdir -p your-project/.agents/skills
+cp -r ~/.agents/skills/git-commit your-project/.agents/skills/
+```
+
+### Step 3: Install Helper Script Dependencies (Optional)
+
+Skills that use automated Python helpers (such as `tool-readme-optimizer` and `tool-html-to-jpg`) require Playwright and Pillow:
+
+```bash
+# Install dependencies for HTML screenshotting
+pip install -r ~/.agents/skills/tool-html-to-jpg/requirements.txt
+
+# Install dependencies for README screenshot/recording capture
+pip install -r ~/.agents/skills/tool-readme-optimizer/requirements.txt
+playwright install chromium
+```
+
 ---
-name: java-api-review
-description: Use this skill when reviewing Java backend API code in Spring Boot projects. Focus on DTO design, controller/service layering, validation, exception handling, and API consistency. Do not use it for frontend code or infrastructure-only tasks.
+
+## 🛡️ Safety & Boundary Principles
+
+All skills in this repository follow strict operational constraints to prevent accidents in production codebases:
+
+```
+[Incoming Request]
+       │
+       ▼
+┌────────────────────────────────────────────────────────┐
+│ 1. Secret & Credential Inspection                     │
+│    Blocks: Tokens, Private Keys, Passwords, Cookies    │
+├────────────────────────────────────────────────────────┤
+│ 2. Code Quality Check                                  │
+│    Blocks: Candidate code containing TODO/FIXME        │
+├────────────────────────────────────────────────────────┤
+│ 3. Path & Configuration Exclusion                      │
+│    Ignores: application-*.yml, .env.*, .idea/, .git/   │
+├────────────────────────────────────────────────────────┤
+│ 4. Git Workspace Protection                            │
+│    Never runs blanket `git add .` or untracked stages   │
+└────────────────────────────────────────────────────────┘
+```
+
+1. **Secret Scanning**: Any candidate file containing real tokens, cloud credentials, database connection strings, or private keys causes an immediate abort.
+2. **TODO Enforcement**: Unfinished items marked with `TODO` cannot be committed silently; the agent halts and reports file and line numbers.
+3. **Protected Files**: Configuration files matching `*/application-*.yml`, `config/.env.*`, `*/.idea/*`, and files listed in `.gitignore` are strictly excluded from staging.
+4. **Minimal Diff Discipline**: When generating or modifying code, skills prohibit unrelated refactorings, cosmetic reformatting of untouched methods, and redundant abstraction layers.
+
 ---
 
-# Purpose
-Review Spring Boot API changes consistently.
+## 🛠️ Developing New Skills
 
-# Workflow
-1. Identify changed controller, service, DTO, and repository files.
-2. Check API contract consistency:
-   - request/response field naming
-   - validation annotations
-   - error response shape
-3. Check layering:
-   - controller should not contain business logic
-   - service should not leak persistence details
-4. Check DTOs:
-   - clear field names
-   - proper nullability/validation
-   - serialization consistency
-5. Run project checks if available:
-   - bash scripts/run_checks.sh
-6. Return:
-   - findings
-   - severity
-   - suggested fixes
-
-# Rules
-- Prefer minimal, production-safe fixes.
-- Do not recommend large refactors unless necessary.
-- Show concrete code changes where possible.
-```
-
-## 7) What makes a skill good
-
-Based on the official guidance, the important points are: 
-
-- Keep it **narrowly scoped**
-- Make `description` very explicit about **when to use** and **when not to use**
-- Put only knowledge Codex is unlikely to know already
-- Use `references/` and `scripts/` only when they add real value
-- Prefer **short instructions + concrete examples** over long theory
-
-## 8) One easy mistake
-
-Do not write a vague description like:
+To contribute or add a custom skill to this repository, adhere to the standard Codex Skill specification:
 
 ```
-description: Helps with coding tasks.
+my-skill/
+├── SKILL.md              # [Required] YAML frontmatter + explicit rules & workflow
+├── agents/
+│   └── openai.yaml       # [Optional] Metadata and MCP tool declarations
+├── scripts/              # [Optional] Executable automation scripts
+├── references/           # [Optional] Supporting specs, templates, and conventions
+└── requirements.txt      # [Required if Python scripts exist] Synchronized dependencies
 ```
 
-That is too broad, so Codex may not trigger it reliably.
+### Minimal `SKILL.md` Example
 
-Better:
+```markdown
+---
+name: my-skill
+description: "Handles <specific task> when users say <trigger phrase 1>, <trigger phrase 2>. Do not trigger for <out-of-scope task>."
+---
 
+# My Skill
+
+## Scope & Boundaries
+- Only touch relevant files.
+- Never modify unrelated code.
+
+## Workflow
+1. Parse user input.
+2. Execute validation.
+3. Produce concise output.
 ```
-description: Use this skill when editing Spring Boot REST APIs that include DTOs, request validation, and exception handling. Do not use it for frontend, SQL migration-only, or DevOps tasks.
-```
 
-That kind of description matches the documented trigger model much better. 
+### Best Practices
+- **Explicit Triggers**: Include both natural positive triggers and explicit anti-triggers in `description`.
+- **Single Responsibility**: Keep skills focused on one coherent domain.
+- **English Default**: Write `SKILL.md` in concise English to maximize multi-LLM comprehension.
+- **Synchronized Dependencies**: Every skill containing Python code must maintain a root `requirements.txt`.
 
-If you want, I can give you a **ready-to-use skill template** for your own case, such as:
+---
 
-- Spring Boot backend review
-- Python data pipeline
-- content generation compliance check
-- OpenClaw / Codex workflow automation
+## 📄 License
 
-# Other
-
-## Share Skills
-> !!! tip: ~/.agents   !!!  not ~/.agent
-- **Codex** documents `~/.agents/skills` as one of its skill discovery locations. It also says Codex supports symlinked skill folders. 
-- **Gemini CLI** also documents `~/.agents/skills` and `.agents/skills` as supported skill directories, alongside its own `~/.gemini/skills` and `.gemini/skills`. 
-
-## parallel skills 
-
-Codex starts with the metadata for **all available skills** (`name`, `description`, path), and then loads the full `SKILL.md` only for the skills it decides to use. It can activate skills either **explicitly** when you mention them, or **implicitly** when your task matches their descriptions. 
-
-So in your example, when generating Java code, Codex may use both a general **Java style** skill and a narrower **Java Feign** skill in the same task if both are relevant. But the docs do **not** say “every matching skill will always be combined,” and they do not define a strict precedence or merge order for overlapping skills. What is documented is the routing model: metadata for all skills is available up front, and full instructions are loaded only when Codex chooses a skill. 
-
-Also, this is **not the same thing as parallel subagents**. In Codex, true parallel work is a **subagent** feature, and subagents are only spawned when you explicitly ask for them. Skills are better thought of as reusable instruction bundles that the main agent may apply during the run. 
-
-
-## codex - openapi
-
-As of April 15, 2026, skills do not appear to be supported in codex --oss -m mode.
-
-
+This repository is licensed under the **Apache License 2.0**. See the [LICENSE](LICENSE) file for complete details.
