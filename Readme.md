@@ -153,7 +153,7 @@ To share skills seamlessly with Gemini CLI:
 
 ```bash
 # Create symbolic link for Gemini CLI skill discovery
-ln -sfn ~/.agents/skills ~/.gemini/skills
+ln -s ~/.agents/skills ~/.gemini/config/skills 
 ```
 
 #### For Claude CLI (Claude Code)
