@@ -18,7 +18,7 @@ Create focused conventional commits from the repository's Git-known changes.
 - Perform commit operations only. Do not edit code, reformat files, or fix unrelated problems.
 - Inspect only tracked changes, staged additions, and staged deletions. Ignore untracked files without reading their contents.
 - Read `.gitignore`, but do not access or commit ignored content.
-- Exclude `*/application.yml`, `*/application-*.yml`, `*/.fastRequest/*`, `*/.mvn/*`, `*/.idea/*`, `*/.antigravity/*`, `*/.vscode/*`, `*/.git/*`, `config/.env.*`, and `*/.DS_Store`.
+- Exclude `*/application.yml`, `*/application-*.yml`, `*/.fastRequest/*`, `*/.mvn/*`, `*/.idea/*`, `*/.antigravity/*`, `*/.vscode/*`, `*/.git/*`, `config/.env.*` (except `.env.example`), and `*/.DS_Store`.
 - Never run `git push`; use the issue-specific commit workflow instead when an issue number and remote branch are part of the request.
 
 ## Safety Gates
