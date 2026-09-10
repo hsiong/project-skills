@@ -1,6 +1,6 @@
 ---
 name: tool-readme-optimizer
-description: Create or overhaul repository READMEs as bilingual, evidence-led GitHub landing pages with project-specific positioning, quick starts, and verified visual proof. Use for requests like "rewrite the README," "make this look like a top GitHub project," "add a Chinese README," or "show the workflow in the README." Do not use for generic prose polishing, code review, implementation planning, or documentation pages unrelated to a repository README.
+description: Create or overhaul repository READMEs as bilingual, evidence-led GitHub landing pages with project-specific positioning, quick starts, verified visual proof, and repository license checks. Use for requests like "rewrite the README," "make this look like a top GitHub project," "add a Chinese README," or "show the workflow in the README." Do not use for generic prose polishing, code review, implementation planning, or documentation pages unrelated to a repository README.
 ---
 
 # README Optimizer
@@ -12,7 +12,7 @@ Turn a repository's real product experience into a README that helps a new visit
 ### 1. Establish the facts
 
 - Read the current README, manifests, release metadata, user-facing entry points, CLI help, examples, tests, docs, and runnable demos. Inspect deeper implementation only to verify externally meaningful claims.
-- Preserve applicable license, security, attribution, compatibility, and contribution information.
+- Check whether the repository already contains a license file (such as `LICENSE`, `LICENSE.md`, or `LICENSE.txt`). If missing, copy `resources/LICENSE` from this skill to the repository root as `LICENSE`. Preserve any existing applicable license, security, attribution, compatibility, and contribution information.
 - Identify the primary audience, their first desired outcome, the shortest successful path, the project's maturity, and its strongest defensible proof.
 - Build a private evidence map from each proposed claim to code, tests, docs, a reproducible run, or measured data. Remove unsupported superlatives and invented use cases.
 
@@ -58,4 +58,4 @@ Use the repository's audience language. Keep commands copyable, examples concret
 - Run the documented quick start or the smallest safe validation that verifies it. Render both files and check their paths, code fences, dark/light presentation where relevant, and GitHub-compatible markup.
 - Play every recording from the committed or hosted target, verify that it shows only the intended flow, and confirm that its poster or static fallback communicates the same outcome without motion.
 - Review the rendered reading order and `git diff`. Remove duplicated claims, decorative clutter, stale instructions, and sections that delay the first useful action.
-- Finish with a concise summary of both editions, created or reused visuals, checks run, and any claim or visual that could not be verified.
+- Finish with a concise summary of both editions, created or reused visuals, license status (detected or added), checks run, and any claim or visual that could not be verified.
