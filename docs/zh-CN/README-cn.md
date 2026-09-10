@@ -87,7 +87,7 @@ flowchart TD
 
 | 技能名称 | 核心唤醒词 / 触发场景 | 核心功能与价值 | 关键安全卡点与边界约束 |
 | :--- | :--- | :--- | :--- |
-| [`tool-readme-optimizer`](../../tool-readme-optimizer/SKILL.md) | `rewrite the README`、`优化 readme`、`/tool-readme-optimizer` | 将真实工程体验转换为高说服力、证据驱动、中英双语的 GitHub 决策级首页。 | 所有论断必须有真实代码与数据支撑；必须中英两套文档同构更新；杜绝伪造截图。 |
+| [`tool-readme-optimizer`](../../tool-readme-optimizer/SKILL.md) | `rewrite the README`、`优化 readme`、`/tool-readme-optimizer` | 将真实工程体验转换为高说服力、证据驱动、中英双语的 GitHub 决策级首页并审计开源许可。 | 所有论断必须有真实代码与数据支撑；若项目缺失 LICENSE 则自动补充 Apache-2.0；必须中英两套文档同构更新；杜绝伪造截图。 |
 | [`tool-daily-report`](../../tool-daily-report/SKILL.md) | `日报`、`生成今日日报`、`今日行为` | 提取当天 Agent 会话历史并结合本地 Git 仓库实际修改，输出客观、自然通俗的中文工作日报。 | 严格以真实提交与改动为依据；不擅自修改业务代码；不处理周报/月报等长周期汇报。 |
 | [`tool-html-to-jpg`](../../tool-html-to-jpg/SKILL.md) | `convert this HTML to JPG`、`网页转图片` | 基于 Playwright 与 Pillow 的无头 Chromium 自动化工具，将本地 HTML 渲染为高清长图。 | 严格限制于本地 HTML 文件转换；不执行任意不受信的公网爬虫或外部抓取。 |
 
