@@ -113,7 +113,7 @@ Bug 类结构：
   - `*/.mvn/*`
   - `*/.idea/*`
   - `*/docs/*`
-  - `config/.env.*`
+  - 除了 `.env.example` 外的 `config/.env.*`
   - `.gitignore` 中提到的内容
 - 读取 `.gitignore`。禁止访问和提交 `.gitignore` 内提到的内容。
 - 如果变更的代码中存在 `todo`，默认必须提醒用户（哪个文件：哪行代码）并终止后续 issue 提交。
