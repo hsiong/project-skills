@@ -56,7 +56,7 @@ update_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
 - 读取 `.gitignore`。禁止读取或提交以下内容：
   - `*/.mvn/*`
   - `*/.idea/*`
-  - `config/.env.*`
+  - 除了 `.env.example` 外的 `config/.env.*`
   - `.gitignore` 中提到的内容
 - 如果变更的代码中存在 `todo`，必须提醒用户(哪个文件：哪行代码)，并终止后续提交
 - 代码里的相对路径是项目相对路径, 不是 agent 相对路径；
