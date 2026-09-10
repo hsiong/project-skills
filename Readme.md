@@ -87,7 +87,7 @@ The repository currently includes **11 production-ready skills** across three co
 
 | Skill | Primary Triggers | Description & Core Value | Key Guardrails & Boundaries |
 | :--- | :--- | :--- | :--- |
-| [`tool-readme-optimizer`](tool-readme-optimizer/SKILL.md) | `rewrite the README`, `优化 readme`, `/tool-readme-optimizer` | Generates conversion-focused, bilingual (EN/ZH) GitHub landing pages with evidence-led structure. | Verifies all claims against real code; mandates dual English and Simplified Chinese editions. |
+| [`tool-readme-optimizer`](tool-readme-optimizer/SKILL.md) | `rewrite the README`, `优化 readme`, `/tool-readme-optimizer` | Generates conversion-focused, bilingual (EN/ZH) GitHub landing pages with evidence-led structure and license audit. | Verifies all claims against real code; audits and adds Apache-2.0 LICENSE if missing; mandates dual English and Simplified Chinese editions. |
 | [`tool-daily-report`](tool-daily-report/SKILL.md) | `日报`, `生成今日日报`, `今日行为` | Compiles daily engineering work reports by correlating agent session history with actual Git changes. | Factual summaries based on verified diffs; does not execute commits or alter code. |
 | [`tool-html-to-jpg`](tool-html-to-jpg/SKILL.md) | `convert this HTML to JPG`, `render webpage as JPEG` | Headless Chromium automation via Playwright/Pillow to capture high-resolution local HTML snapshots. | Confined to local HTML files; prevents arbitrary external web scraping. |
 
