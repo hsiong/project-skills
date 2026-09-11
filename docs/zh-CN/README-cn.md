@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="../../LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License: Apache 2.0"></a>
-  <img src="https://img.shields.io/badge/Skills-11%20个生产就绪技能-success.svg" alt="Skills: 11 个生产就绪技能">
+  <img src="https://img.shields.io/badge/Skills-9%20个生产就绪技能-success.svg" alt="Skills: 9 个生产就绪技能">
   <img src="https://img.shields.io/badge/Runtimes-Codex%20%7C%20Gemini%20CLI%20%7C%20Claude%20CLI%20%7C%20Antigravity-blueviolet.svg" alt="运行环境: Codex | Gemini CLI | Claude CLI | Antigravity">
   <img src="https://img.shields.io/badge/Standard-Agents%20Skill%20Spec-informational.svg" alt="Agents 技能规范">
 </p>
@@ -63,7 +63,7 @@ flowchart TD
 
 ## 📦 技能全集清单
 
-本仓库目前包含 **11 个生产级技能**，涵盖版本控制、多语言工程规范与提效工具三大类：
+本仓库目前包含 **9 个生产级技能**，涵盖版本控制、多语言工程规范与提效工具三大类：
 
 ### 1. Git 与版本控制自动化
 
@@ -87,9 +87,16 @@ flowchart TD
 
 | 技能名称 | 核心唤醒词 / 触发场景 | 核心功能与价值 | 关键安全卡点与边界约束 |
 | :--- | :--- | :--- | :--- |
-| [`tool-readme-optimizer`](../../tool-readme-optimizer/SKILL.md) | `rewrite the README`、`优化 readme`、`/tool-readme-optimizer` | 将真实工程体验转换为高说服力、证据驱动、中英双语的 GitHub 决策级首页并审计开源许可。 | 所有论断必须有真实代码与数据支撑；若项目缺失 LICENSE 则自动补充 Apache-2.0；必须中英两套文档同构更新；杜绝伪造截图。 |
-| [`tool-daily-report`](../../tool-daily-report/SKILL.md) | `日报`、`生成今日日报`、`今日行为` | 提取当天 Agent 会话历史并结合本地 Git 仓库实际修改，输出客观、自然通俗的中文工作日报。 | 严格以真实提交与改动为依据；不擅自修改业务代码；不处理周报/月报等长周期汇报。 |
-| [`tool-html-to-jpg`](../../tool-html-to-jpg/SKILL.md) | `convert this HTML to JPG`、`网页转图片` | 基于 Playwright 与 Pillow 的无头 Chromium 自动化工具，将本地 HTML 渲染为高清长图。 | 严格限制于本地 HTML 文件转换；不执行任意不受信的公网爬虫或外部抓取。 |
+| [`tool`](../../tool/SKILL.md) | `调用工具-日报`、`调用工具-HTML转JPG`、`调用工具-项目指南`、`调用工具-优化README` | 一个工具 skill，根据具体需求选择四种内置能力。 | 按需读取对应能力说明；遵循各能力的适用范围与校验要求。 |
+
+先由“调用工具”唤醒 `tool`，再根据后续需求选择能力；连字符、空格或冒号均可分隔。
+
+| 内置能力 | 调用示例 | 能力说明 |
+| :--- | :--- | :--- |
+| 日报 | `调用工具-生成今日日报` | [基于对话历史和 Git 改动生成中文日报](../../tool/references/daily-report.md) |
+| HTML 转 JPG | `调用工具-HTML转JPG` | [将本地 HTML 渲染为高清 JPG](../../tool/references/html-to-jpg.md) |
+| 项目指南 | `调用工具-详细说明本项目所有功能和配置` | [完整说明功能、配置和从零运行步骤](../../tool/references/project-guide.md) |
+| README 优化 | `调用工具-优化README` | [基于真实证据编写中英双语 README](../../tool/references/readme-optimizer.md) |
 
 ---
 
@@ -184,15 +191,14 @@ cp -r ~/.agents/skills/git-commit your-project/.agents/skills/
 
 ### 步骤 3：安装脚本依赖（按需可选）
 
-包含独立 Python 自动化脚本的技能（如 `tool-readme-optimizer` 和 `tool-html-to-jpg`）依赖 Playwright 和 Pillow：
+`tool` 的 HTML 转 JPG 和 README 截图能力共用根目录依赖清单；日报和项目指南无需安装这些依赖。
 
 ```bash
-# 安装 HTML 渲染截图依赖
-pip install -r ~/.agents/skills/tool-html-to-jpg/requirements.txt
-
-# 安装 README 优化器截屏录屏依赖
-pip install -r ~/.agents/skills/tool-readme-optimizer/requirements.txt
-playwright install chromium
+# 先激活项目虚拟环境
+python -m pip install \
+  -r ~/.agents/skills/tool/requirements.txt
+python -m playwright install \
+  chromium
 ```
 
 ---
