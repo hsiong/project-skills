@@ -76,6 +76,7 @@ update_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
 - 业务流程发生修改时, 同步需要修改相关测试方法
 
 ## 核心规范
+- 部署脚本使用 `docker` 部署, 构造前自动停止/清理旧容器
 - 使用框架内已有的日志工具，在关键节点 加入 日志打印
 - 缩进使用 tab； keep indents on empty lines
 - 与本次修改无关的文件/代码/注释, 禁止删除
