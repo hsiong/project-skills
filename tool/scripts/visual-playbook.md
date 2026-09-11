@@ -90,9 +90,14 @@ When no browser capture tool is available, create a JSON file and run the bundle
 ```
 
 ```bash
-python -m pip install -r /path/to/tool-readme-optimizer/requirements.txt
-python -m playwright install chromium ffmpeg
-python /path/to/tool-readme-optimizer/scripts/capture_readme.py readme-captures.json
+python -m pip install \
+  -r /path/to/tool/requirements.txt
+python -m playwright install \
+  chromium \
+  ffmpeg
+python \
+  /path/to/tool/scripts/capture_readme.py \
+  readme-captures.json
 ```
 
 The script accepts `click`, `fill`, `press`, `hover`, `check`, `uncheck`, `select_option`, `drag_to`, `scroll_into_view`, `wait_for`, and timed `wait` actions. Use `routes` to fulfill deterministic API responses with safe demo data before navigation; each route needs a Playwright URL pattern plus `json` or `body`, and may specify `method`, `status`, `headers`, and `content_type`. The legacy `shots` field remains supported, but legacy configs must satisfy the current validation gates. Before writing an asset, the script waits for network idle, linked stylesheets, fonts, DOM images, and computed-style image resources; a failed visual resource aborts the capture. Set `wait_for_network_idle`, `wait_for_stylesheets`, `wait_for_fonts`, `wait_for_images`, or `wait_for_background_images` to `false` only when the excluded resource is proven irrelevant to the intended frame.
