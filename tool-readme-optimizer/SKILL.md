@@ -45,7 +45,7 @@ Build the opening viewport from the strongest available elements:
 4. A primary action such as Try, Install, View demo, or Read docs.
 5. Immediate proof: a real screenshot, focused recording, short terminal session, output example, or benchmark.
 
-After the opening, arrange project-specific modules such as highlights, quick start, examples, performance, architecture, compatibility, configuration, limitations, roadmap/status, support, contributing, citation, and license. Put the first successful run early, move exhaustive reference material into linked docs, and keep each section centered on one reader question.
+After the opening, arrange project-specific modules such as highlights, quick start, examples, performance, architecture, compatibility, configuration, limitations, roadmap/status, support, contributing, citation, and license. Put the first successful run early, move exhaustive reference material into linked docs, and keep each section centered on one reader question. If the project contains an API documentation URL, include it in the README at the beginning of the API Reference section.
 
 Use the repository's audience language. Keep commands copyable, examples concrete, headings scannable, and claims proportional to evidence. Do not turn internal class names, file inventories, or every implemented feature into the story.
 
