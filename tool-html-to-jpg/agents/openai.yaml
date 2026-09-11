@@ -1,4 +1,0 @@
-interface:
-  display_name: "HTML to JPG"
-  short_description: "Render local HTML pages as high-quality JPG images"
-  default_prompt: "Use $tool_html-to-jpg to convert a local HTML file into a high-quality JPG image."
