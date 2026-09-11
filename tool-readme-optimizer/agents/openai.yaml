@@ -1,4 +1,0 @@
-interface:
-  display_name: "README Optimizer"
-  short_description: "Build bilingual evidence-led READMEs with visual demos and license audit"
-  default_prompt: "Use $tool_readme-optimizer to audit repository license, create an English root README and linked Chinese edition with a strong narrative, quick start, and verified visual proof."
