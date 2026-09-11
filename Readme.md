@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License: Apache 2.0"></a>
-  <img src="https://img.shields.io/badge/Skills-11%20Production%20Ready-success.svg" alt="Skills: 11 Production Ready">
+  <img src="https://img.shields.io/badge/Skills-9%20Production%20Ready-success.svg" alt="Skills: 9 Production Ready">
   <img src="https://img.shields.io/badge/Runtimes-Codex%20%7C%20Gemini%20CLI%20%7C%20Claude%20CLI%20%7C%20Antigravity-blueviolet.svg" alt="Runtimes: Codex | Gemini CLI | Claude CLI | Antigravity">
   <img src="https://img.shields.io/badge/Standard-Agents%20Skill%20Spec-informational.svg" alt="Agents Skill Spec">
 </p>
@@ -63,7 +63,7 @@ flowchart TD
 
 ## 📦 Skill Catalog
 
-The repository currently includes **11 production-ready skills** across three core domains:
+The repository currently includes **9 production-ready skills** across three core domains:
 
 ### 1. Git & Version Control Automation
 
@@ -87,9 +87,16 @@ The repository currently includes **11 production-ready skills** across three co
 
 | Skill | Primary Triggers | Description & Core Value | Key Guardrails & Boundaries |
 | :--- | :--- | :--- | :--- |
-| [`tool-readme-optimizer`](tool-readme-optimizer/SKILL.md) | `rewrite the README`, `优化 readme`, `/tool-readme-optimizer` | Generates conversion-focused, bilingual (EN/ZH) GitHub landing pages with evidence-led structure and license audit. | Verifies all claims against real code; audits and adds Apache-2.0 LICENSE if missing; mandates dual English and Simplified Chinese editions. |
-| [`tool-daily-report`](tool-daily-report/SKILL.md) | `日报`, `生成今日日报`, `今日行为` | Compiles daily engineering work reports by correlating agent session history with actual Git changes. | Factual summaries based on verified diffs; does not execute commits or alter code. |
-| [`tool-html-to-jpg`](tool-html-to-jpg/SKILL.md) | `convert this HTML to JPG`, `render webpage as JPEG` | Headless Chromium automation via Playwright/Pillow to capture high-resolution local HTML snapshots. | Confined to local HTML files; prevents arbitrary external web scraping. |
+| [`tool`](tool/SKILL.md) | `调用工具-日报`, `调用工具-HTML转JPG`, `调用工具-项目指南`, `调用工具-优化README` | One tool skill that selects among four built-in capabilities based on the request. | Loads capability instructions on demand and follows their scope and validation rules. |
+
+`调用工具` activates `tool`; the following request selects the capability. A hyphen, space, or colon may separate them.
+
+| Built-in capability | Invocation example | Instructions |
+| :--- | :--- | :--- |
+| Daily report | `调用工具-生成今日日报` | [Chinese reports from conversation history and Git changes](tool/references/daily-report.md) |
+| HTML to JPG | `调用工具-HTML转JPG` | [High-quality JPG rendering of local HTML](tool/references/html-to-jpg.md) |
+| Project guide | `调用工具-详细说明本项目所有功能和配置` | [Complete features, configuration, and setup from scratch](tool/references/project-guide.md) |
+| README optimization | `调用工具-优化README` | [Evidence-led English and Chinese READMEs](tool/references/readme-optimizer.md) |
 
 ---
 
@@ -184,15 +191,14 @@ cp -r ~/.agents/skills/git-commit your-project/.agents/skills/
 
 ### Step 3: Install Helper Script Dependencies (Optional)
 
-Skills that use automated Python helpers (such as `tool-readme-optimizer` and `tool-html-to-jpg`) require Playwright and Pillow:
+The HTML-to-JPG and README capture capabilities of `tool` share its root dependency file; daily reports and project guides do not need these dependencies.
 
 ```bash
-# Install dependencies for HTML screenshotting
-pip install -r ~/.agents/skills/tool-html-to-jpg/requirements.txt
-
-# Install dependencies for README screenshot/recording capture
-pip install -r ~/.agents/skills/tool-readme-optimizer/requirements.txt
-playwright install chromium
+# Activate the project virtual environment first
+python -m pip install \
+  -r ~/.agents/skills/tool/requirements.txt
+python -m playwright install \
+  chromium
 ```
 
 ---
