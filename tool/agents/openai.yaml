@@ -1,0 +1,7 @@
+interface:
+  display_name: "工具"
+  short_description: "统一工具入口：按具体需求选择日报、HTML 转 JPG、项目指南或 README 优化"
+  default_prompt: "调用工具：使用 $tool，根据后续需求选择日报、HTML 转 JPG、项目指南或 README 优化能力。"
+
+policy:
+  allow_implicit_invocation: true
