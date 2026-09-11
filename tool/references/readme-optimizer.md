@@ -1,8 +1,3 @@
----
-name: tool-readme-optimizer
-description: Create or overhaul repository READMEs as bilingual, evidence-led GitHub landing pages with project-specific positioning, quick starts, verified visual proof, and repository license checks. Use for requests like "rewrite the README," "make this look like a top GitHub project," "add a Chinese README," or "show the workflow in the README." Do not use for generic prose polishing, code review, implementation planning, or documentation pages unrelated to a repository README.
----
-
 # README Optimizer
 
 Turn a repository's real product experience into a README that helps a new visitor understand it, trust it, and try it quickly. Treat the README as a decision page, not a source-code report or a fixed essay template.
@@ -19,14 +14,14 @@ Turn a repository's real product experience into a README that helps a new visit
 ### 2. Choose the story for this project
 
 - Classify the project as a visual product, CLI/developer tool, library/API, model/research project, infrastructure/platform, agent/skill, or a justified hybrid.
-- Read [references/readme-patterns.md](references/readme-patterns.md), then select only the modules that help this project's audience decide or act.
+- Read [readme-patterns.md](../scripts/readme-patterns.md), then select only the modules that help this project's audience decide or act.
 - Distill one precise promise and three to six differentiators. Lead with user-visible outcomes and proof; explain internals only when they establish trust or clarify a real design advantage.
 
 ### 3. Draft with visual proof
 
-- Read [references/visual-playbook.md](references/visual-playbook.md) and inventory existing visual assets before creating new ones.
+- Read [visual-playbook.md](../scripts/visual-playbook.md) and inventory existing visual assets before creating new ones.
 - Sketch the README's reading order and mark the claims that need visual proof before capturing anything. Choose each asset for a known placement instead of producing a generic gallery up front.
-- For a runnable visual product, launch it with safe demo data and capture the smallest set of real states or interactions that proves the core experience. Use an available browser tool or [scripts/capture_readme.py](scripts/capture_readme.py). When executing or testing scripts, use project dependencies; never use global pip to pollute global dependencies. If no project environment exists, use a temporary virtual environment at `/tmp/tool-readme-optimizer/bin/python` and remove it after execution.
+- For a runnable visual product, launch it with safe demo data and capture the smallest set of real states or interactions that proves the core experience. Use an available browser tool or [scripts/capture_readme.py](../scripts/capture_readme.py).
 - Keep a reproducible capture configuration for every committed product screenshot or recording. Include a product-specific ready selector and computed-style checks for the primary surface; never rely on a fixed delay alone.
 - Record a short interaction when the value depends on motion, sequence, direct manipulation, live feedback, or a state transition that screenshots would obscure. Use a screenshot for a stable result and pair every recording with a useful static frame.
 - For a CLI, library, model, or infrastructure project, prefer the visual evidence that best fits the claim: a terminal transcript, rendered result, benchmark chart, architecture diagram, model table, or workflow trace.
