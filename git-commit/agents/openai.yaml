@@ -1,7 +1,7 @@
 interface:
   display_name: "Git Commit Assistant"
-  short_description: "Safely split and create Chinese or English Git commits"
-  default_prompt: "Use $git-commit to safety-check Git-known changes and create well-scoped commits in the language I request."
+  short_description: "Safely split Git commits and tag milestones"
+  default_prompt: "Use $git-commit to safety-check Git-known changes, create well-scoped commits, or tag milestones on the latest commit."
 
 policy:
   allow_implicit_invocation: true
