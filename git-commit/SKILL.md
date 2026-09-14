@@ -1,11 +1,11 @@
 ---
 name: git-commit
-description: "Handle local Git commits in Chinese or English when users say commit, 提交, 中文 commit, English commit, or ask to split changes into commits. Do not trigger for code editing, issue-linked push workflows, untracked-file inspection, or push-only requests."
+description: "Handle local Git commits and milestone tagging when users say commit, 提交, milestone, milestone tag, 中文 commit, English commit, or ask to split changes into commits. Do not trigger for code editing, issue-linked push workflows, untracked-file inspection, or push-only requests."
 ---
 
 # Git Commit
 
-Create focused conventional commits from the repository's Git-known changes.
+Create focused conventional commits from the repository's Git-known changes, and tag milestone releases when requested.
 
 ## Language
 
@@ -15,11 +15,11 @@ Create focused conventional commits from the repository's Git-known changes.
 
 ## Scope
 
-- Perform commit operations only. Do not edit code, reformat files, or fix unrelated problems.
+- Perform commit and milestone tagging operations only. Do not edit code, reformat files, or fix unrelated problems.
 - Inspect only tracked changes, staged additions, and staged deletions. Ignore untracked files without reading their contents.
 - Read `.gitignore`, but do not access or commit ignored content.
 - Exclude `*/application.yml`, `*/application-*.yml`, `*/.fastRequest/*`, `*/.mvn/*`, `*/.idea/*`, `*/.antigravity/*`, `*/.vscode/*`, `*/.git/*`, `config/.env.*` (except `.env.example`), and `*/.DS_Store`.
-- Never run `git push`; use the issue-specific commit workflow instead when an issue number and remote branch are part of the request.
+- Never run `git push` or push tags to remote; use the issue-specific commit workflow instead when an issue number and remote branch are part of the request.
 
 ## Safety Gates
 
@@ -47,4 +47,18 @@ Use `git diff --numstat` and `git diff --stat` to estimate each group's changed 
 - Keep the title concrete and concise. Do not include file names or sequence numbers.
 - When one file contains multiple concrete changes, describe them in the body with hyphen bullets rather than numbered items.
 
-After the safety checks, create the commits without requesting another confirmation. Report every original commit message in execution order, then summarize the total changed lines as additions and deletions.
+## Milestone Tagging
+
+When the user specifies `milestone`:
+- Extract the milestone tag name from the input (e.g., `v1.0.0`, `milestone-1.0`). If no tag name or version is given, ask the user to supply one before creating the tag.
+- Apply the tag to the latest commit (`HEAD`) after all pending commits finish, or to the current `HEAD` if no new commits are made.
+- Before creating the tag, locate the most recent prior tag with `git describe --tags --abbrev=0 2>/dev/null` (or all commits up to `HEAD` if no prior tag exists) to determine the non-overlapping commit range `<prev_tag>..HEAD`.
+- Compile structured Release Notes for the tag annotation and report:
+  1. Title: `Release <tag_name>`
+  2. Functional Overview (功能概述): Summarize key capabilities, architectural designs, features, and fixes included strictly within this milestone range.
+  3. Related Commit Tree (提交历史): Include the exact non-overlapping commit list using `git log <range> --oneline` or formatted bullet tree `* <hash> <subject>`. Never repeat commits included in previous tags.
+- Create an annotated Git tag with `git tag -a <tag_name> -m "<release_notes>"` containing the full Release Notes.
+- If the tag already exists, stop and inform the user without using `--force`.
+- Report the complete release notes and remind the user to push tags with: `git push origin <branch> --tags` (using the current branch name, e.g., `master` or `main`). Do not suggest or mention pushing for non-milestone commits.
+
+After the safety checks, create the commits and tags without requesting unnecessary confirmation. Report every original commit message in execution order, then summarize the total changed lines as additions and deletions.
