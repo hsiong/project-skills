@@ -9,8 +9,12 @@ Create focused conventional commits from the repository's Git-known changes, and
 
 ## Language
 
-- Follow an explicit request for Chinese or English commit messages.
-- Otherwise match the language of the user's request. For mixed or language-neutral requests, default to English.
+- If the user explicitly specifies the commit language in the trigger prompt (e.g., "中文 commit", "English commit"), use that language directly without prompting.
+- Otherwise, interact with the user before committing to choose the commit message language:
+  1. English (Default / Enter)
+  2. Chinese (中文)
+  3. Custom input
+- Treat an empty reply or Enter as English. When option 3 is chosen, follow the user's custom language or style instructions.
 - Keep the commit message entirely in the selected language, apart from the conventional commit type.
 
 ## Scope
@@ -62,4 +66,4 @@ When the user specifies `milestone`:
 - Delete the local tag after the push succeeds: `git tag -d <tag_name>`.
 - Report the complete release notes. For non-milestone commits, never push, suggest, or mention pushing.
 
-After the safety checks, create the commits and tags without requesting unnecessary confirmation. Report every original commit message in execution order, then summarize the total changed lines as additions and deletions.
+After the safety checks and language selection, create the commits and tags without requesting unnecessary confirmation. Report every original commit message in execution order, then summarize the total changed lines as additions and deletions.
