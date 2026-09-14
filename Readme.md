@@ -69,7 +69,7 @@ The repository currently includes **9 production-ready skills** across three cor
 
 | Skill | Primary Triggers | Description & Core Value | Key Guardrails & Boundaries |
 | :--- | :--- | :--- | :--- |
-| [`git-commit`](git-commit/SKILL.md) | `commit`, `提交`, `milestone`, `milestone tag`, `中文 commit`, `English commit` | Safely groups and generates conventional commits from Git-known changes, with milestone Git tagging and release notes. | Blocks on `TODO` and leaked secrets; never pushes standard commits; ignores untracked files; splits by business boundary. |
+| [`git-commit`](git-commit/SKILL.md) | `commit`, `提交`, `milestone`, `milestone tag`, `中文 commit`, `English commit` | Safely groups and generates conventional commits with interactive language selection (English default, Chinese, or custom), plus milestone Git tagging and release notes. | Blocks on `TODO` and leaked secrets; never pushes standard commits; ignores untracked files; splits by business boundary. |
 | [`issue-commit`](issue-commit/SKILL.md) | `issue commit: #<id> ...` (e.g., `issue commit: #25 fix null pointer`) | Pushes mapped changes directly to remote `fix/<issue_code>` branch and generates a GitHub PR link. | **Zero local branches**; rolls back local commit with `git reset --soft HEAD~1`; never touches untracked files. |
 | [`issue-github-generator`](issue-github-generator/SKILL.md) | `生成 issue`, `根据这次改动提 issue`, `按功能拆 issue` | Inspects current Git diffs, deduplicates against remote GitHub issues, and drafts structured English issues. | Read-only diff inspection; splits by single responsibility; does not commit or alter source code. |
 
