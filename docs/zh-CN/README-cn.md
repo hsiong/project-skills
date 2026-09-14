@@ -69,7 +69,7 @@ flowchart TD
 
 | 技能名称 | 核心唤醒词 / 触发场景 | 核心功能与价值 | 关键安全卡点与边界约束 |
 | :--- | :--- | :--- | :--- |
-| [`git-commit`](../../git-commit/SKILL.md) | `commit`、`提交`、`milestone`、`milestone tag`、`中文 commit`、`English commit` | 自动识别当前 Git 改动，按业务内聚度安全拆分生成常规提交信息（中/英），并支持打 milestone 标签与生成 Release Notes。 | 拦截 `TODO` 与敏感信息；禁止直接 push；忽略未跟踪文件；严禁全量盲目暂存。 |
+| [`git-commit`](../../git-commit/SKILL.md) | `commit`、`提交`、`milestone`、`milestone tag`、`中文 commit`、`English commit` | 自动识别当前 Git 改动，按业务内聚度安全拆分生成常规提交信息（中/英），并支持打 milestone 标签与生成 Release Notes。 | 拦截 `TODO` 与敏感信息；常规提交不直接 push；忽略未跟踪文件；严禁全量盲目暂存。 |
 | [`issue-commit`](../../issue-commit/SKILL.md) | `issue commit: #<id> ...`（例如：`issue commit: #25 修复空指针`） | 将已跟踪改动映射到对应 Issue，直接推送到远程 `fix/<issue_code>` 并生成 PR 链接。 | **本地不建任何分支**；通过 `git reset --soft HEAD~1` 回滚本地提交；不污染未跟踪文件。 |
 | [`issue-github-generator`](../../issue-github-generator/SKILL.md) | `生成 issue`、`根据这次改动提 issue`、`按功能拆 issue` | 分析本地 Git 改动，联网在 GitHub 上检索查重，按单一职责拆分并生成标准英文 Issue 草稿。 | 只读分析 Git 已知改动；不修改业务代码；不自动执行本地 commit 或 push。 |
 
