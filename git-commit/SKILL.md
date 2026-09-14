@@ -19,7 +19,7 @@ Create focused conventional commits from the repository's Git-known changes, and
 - Inspect only tracked changes, staged additions, and staged deletions. Ignore untracked files without reading their contents.
 - Read `.gitignore`, but do not access or commit ignored content.
 - Exclude `*/application.yml`, `*/application-*.yml`, `*/.fastRequest/*`, `*/.mvn/*`, `*/.idea/*`, `*/.antigravity/*`, `*/.vscode/*`, `*/.git/*`, `config/.env.*` (except `.env.example`), and `*/.DS_Store`.
-- Never run `git push` or push tags to remote; use the issue-specific commit workflow instead when an issue number and remote branch are part of the request.
+- Never run `git push` for standard commits; use the issue-specific commit workflow instead when an issue number and remote branch are part of the request.
 
 ## Safety Gates
 
@@ -57,8 +57,9 @@ When the user specifies `milestone`:
   1. Title: `Release <tag_name>`
   2. Functional Overview (功能概述): Summarize key capabilities, architectural designs, features, and fixes included strictly within this milestone range.
   3. Related Commit Tree (提交历史): Include the exact non-overlapping commit list using `git log <range> --oneline` or formatted bullet tree `* <hash> <subject>`. Never repeat commits included in previous tags.
-- Create an annotated Git tag with `git tag -a <tag_name> -m "<release_notes>"` containing the full Release Notes.
-- If the tag already exists, stop and inform the user without using `--force`.
-- Report the complete release notes and remind the user to push tags with: `git push origin <branch> --tags` (using the current branch name, e.g., `master` or `main`). Do not suggest or mention pushing for non-milestone commits.
+- Create an annotated Git tag with `git tag -a <tag_name> -m "<release_notes>"` containing the full Release Notes. If the tag already exists, stop and inform the user without using `--force`.
+- Automatically push to remote with tags: `git push origin <branch> --tags` (using the current branch name, e.g., `master` or `main`).
+- Delete the local tag after the push succeeds: `git tag -d <tag_name>`.
+- Report the complete release notes. For non-milestone commits, never push, suggest, or mention pushing.
 
 After the safety checks, create the commits and tags without requesting unnecessary confirmation. Report every original commit message in execution order, then summarize the total changed lines as additions and deletions.
