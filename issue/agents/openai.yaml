@@ -1,0 +1,7 @@
+interface:
+  display_name: "GitHub Issue Specialist"
+  short_description: "Manage GitHub issue drafting, deduplication, and issue-linked remote branch commits"
+  default_prompt: "Use $issue to handle GitHub issue operations: generate structured, deduplicated issue drafts in docs/issue/, or push changes directly to remote fix/issue_code branches without local branches."
+
+policy:
+  allow_implicit_invocation: true
