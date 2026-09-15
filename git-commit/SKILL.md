@@ -10,11 +10,13 @@ Create focused conventional commits from the repository's Git-known changes, and
 ## Language
 
 - If the user explicitly specifies the commit language in the trigger prompt (e.g., "中文 commit", "English commit"), use that language directly without prompting.
-- Otherwise, interact with the user before committing to choose the commit message language:
-  1. English (Default / Enter)
-  2. Chinese (中文)
-  3. Custom input
-- Treat an empty reply or Enter as English. When option 3 is chosen, follow the user's custom language or style instructions.
+- If not explicitly specified:
+  - Check the repository's commit history (e.g., `git log -n 10 --format=%s%n%b`). If commit records exist, automatically adopt the predominant commit language used in the project's history (e.g., English or Chinese) without prompting.
+  - Only when the repository is newly initialized with no commit history, interact with the user before committing to choose the commit message language:
+    1. English (Default / Enter)
+    2. Chinese (中文)
+    3. Custom input
+  - Treat an empty reply or Enter as English. When option 3 is chosen, follow the user's custom language or style instructions.
 - Keep the commit message entirely in the selected language, apart from the conventional commit type.
 
 ## Scope
