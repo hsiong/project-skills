@@ -12,6 +12,10 @@ description: "当用户要生成、补全、修改或评审 Python 代码时触�
 - 具体业务判断、数据拼装、状态处理放在业务方法中。
 - 请求体、响应体满足 实体与请求对象 约束。
 
+## HTTP 请求与接口调用
+- 请求类场景、用户发送 curl 等命令或进行接口测试时，默认统一使用 Python 的 `requests` 库实现代码，严禁使用命令行 `curl`（禁止使用 cmd curl 或通过 subprocess 执行 curl）。
+- 除非项目已集成其他专用 API/SDK（例如 OpenAI dashboard / SDK 等），才使用对应的集成 API。
+
 ## SQL 与 ORM
 + SQL 数据库默认使用 postgres, 参考 `postgres_init.py`
 + ORM 使用 `SQLAlchemy`
