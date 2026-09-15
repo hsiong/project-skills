@@ -1,7 +1,0 @@
-interface:
-  display_name: "Issue Branch Committer"
-  short_description: "提交前拦截 TODO 和敏感信息，并按 Issue 直推远程分支"
-  default_prompt: "Use $issue-commit to stop and report TODOs or real sensitive data in candidate files; otherwise map Git-known changes to the provided issues and push them directly to remote fix/issue_code branches without creating local branches or retaining local commits."
-
-policy:
-  allow_implicit_invocation: true
