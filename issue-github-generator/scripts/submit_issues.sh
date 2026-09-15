@@ -2,12 +2,52 @@
 
 set -euo pipefail
 
-TOKEN="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
-REPO="${1:-${GITHUB_REPOSITORY:-}}"
 ISSUE_DIR="${2:-docs/issue}"
 
+load_env_file() {
+    local env_file="$1"
+    if [ -f "$env_file" ]; then
+        while IFS= read -r line || [ -n "$line" ]; do
+            line="${line#"${line%%[![:space:]]*}"}"
+            line="${line%"${line##*[![:space:]]}"}"
+            line="${line%$'\r'}"
+            case "$line" in
+                \#*|"") continue ;;
+            esac
+            if [[ "$line" =~ ^([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]]; then
+                local key="${BASH_REMATCH[1]}"
+                local val="${BASH_REMATCH[2]}"
+                val="${val#"${val%%[![:space:]]*}"}"
+                val="${val%"${val##*[![:space:]]}"}"
+                if [[ "$val" =~ ^\"(.*)\"$ ]] || [[ "$val" =~ ^\'(.*)\'$ ]]; then
+                    val="${BASH_REMATCH[1]}"
+                fi
+                if [ -z "${!key:-}" ]; then
+                    export "$key"="$val"
+                fi
+            fi
+        done < "$env_file"
+    fi
+}
+
+# Load environment variables: checks docs/.env, ${ISSUE_DIR%/*}/.env, and root .env
+for env_candidate in "docs/.env" "${ISSUE_DIR%/*}/.env" ".env"; do
+    if [ -f "$env_candidate" ]; then
+        load_env_file "$env_candidate"
+    fi
+done
+
+# Token resolution: environment variable (GITHUB_TOKEN / GH_TOKEN) or .env
+TOKEN="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
+
+# Repository resolution:
+# 1. First positional argument ($1)
+# 2. Environment variable or loaded from .env (GITHUB_REPOSITORY)
+# 3. Fallback to local git remote.origin.url (auto-detected below if empty)
+REPO="${1:-${GITHUB_REPOSITORY:-}}"
+
 if [ -z "$TOKEN" ]; then
-    echo "error: set GITHUB_TOKEN or GH_TOKEN before submitting issues"
+    echo "error: set GITHUB_TOKEN or GH_TOKEN (or configure in docs/.env) before submitting issues"
     exit 1
 fi
 
@@ -24,7 +64,7 @@ fi
 
 if ! printf '%s' "$REPO" | grep -Eq '^[^/]+/[^/]+$'; then
     echo "error: repository must be owner/repo"
-    echo "usage: $0 owner/repo [issue_dir]"
+    echo "usage: $0 [owner/repo] [issue_dir]"
     exit 1
 fi
 
