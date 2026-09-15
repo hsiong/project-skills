@@ -60,8 +60,8 @@ description: "当用户要按当前 Git 改动生成 GitHub issue 草稿或明�
 6. 提交 issue：
    - 只有用户明确要求提交 issue 时，才直接调用本 skill 的 `scripts/submit_issues.sh`。
    - 调用前确认草稿已写入 `docs/issue/`。
-   - 脚本参数优先使用目标仓库 `owner/repo` 和草稿目录：`bash scripts/submit_issues.sh <owner/repo> docs/issue`。
-   - Token 必须来自 `GITHUB_TOKEN` 或 `GH_TOKEN` 环境变量。
+   - 脚本支持从命令行参数、`docs/.env`、根目录 `.env` 或 `git remote origin` 获取 `GITHUB_REPOSITORY`：`bash scripts/submit_issues.sh [owner/repo] [issue_dir]`。
+   - Token 支持从环境变量（`GITHUB_TOKEN` / `GH_TOKEN`）或 `docs/.env` 读取。
 
 ## 输出要求
 
@@ -73,7 +73,7 @@ description: "当用户要按当前 Git 改动生成 GitHub issue 草稿或明�
 ## 失败处理
 
 - 若仓库无法识别或没有远程 GitHub 地址，停止并说明需要目标仓库。
-- 若用户要求提交但缺少 token，停止并说明需要 `GITHUB_TOKEN` 或 `GH_TOKEN`。
+- 若用户要求提交但缺少 token，停止并说明需要 GitHub Token（环境变量或 docs/.env）。
 - 若发现未跟踪文件可能影响判断，忽略它们，不访问其内容。
 - 若无法在不违反约束的前提下安全拆分 issue，停止执行并说明原因。
 
@@ -113,7 +113,7 @@ Bug 类结构：
   - `*/.mvn/*`
   - `*/.idea/*`
   - `*/docs/*`
-  - 除了 `.env.example` 外的 `config/.env.*`
+  - 除了 `.env.example` 外的 `config/.env.*`、`.env` 及 `docs/.env`
   - `.gitignore` 中提到的内容
 - 读取 `.gitignore`。禁止访问和提交 `.gitignore` 内提到的内容。
 - 如果变更的代码中存在 `todo`，默认必须提醒用户（哪个文件：哪行代码）并终止后续 issue 提交。
