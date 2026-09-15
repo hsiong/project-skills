@@ -1,7 +1,7 @@
 interface:
   display_name: "Python代码规范"
   short_description: "按现有项目风格生成最小改动的 Python 代码"
-  default_prompt: "Use $backend-python-code-style to generate or revise Python code with minimal structural change, clear business logic, and simple tests when needed."
+  default_prompt: "Use $code-backend-python-style to generate or revise Python code with minimal structural change, clear business logic, and simple tests when needed."
 
 policy:
   allow_implicit_invocation: true
