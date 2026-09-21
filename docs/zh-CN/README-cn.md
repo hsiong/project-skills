@@ -77,17 +77,18 @@ flowchart TD
 
 | 技能名称 | 核心唤醒词 / 触发场景 | 核心功能与价值 | 关键安全卡点与边界约束 |
 | :--- | :--- | :--- | :--- |
-| [`code-backend-common`](../../code-backend-common/SKILL.md) | 由其他编程技能隐式触发 | 后端基础通用规范：最小必要修改、简单方法设计、数据库建表/字段规范、严禁过度封装。 | 严禁借机顺手重构无关代码；禁止无意义透传重载；禁止裸 `Map` 传参；统一异常与返回。 |
-| [`code-backend-java-style`](../../code-backend-java-style/SKILL.md) | Java 后端代码生成、补全、修改或评审 | 规范 Spring Boot 架构分层：Controller 使用 `@Operation`，统一 `Result` 封装，DTO 强制分包解耦。 | Controller 只做调度校验，业务全在 Service；严禁 DTO 内部类；禁止危险全量 update 覆写。 |
-| [`code-backend-java-feign-style`](../../code-backend-java-feign-style/SKILL.md) | `接一个 Feign 接口`、`补 decoder`、`补 interceptor` | 规范 Java 项目基于 OpenFeign 的外部接口对接，标准化 DTO、编解码器与拦截器链路。 | 最小化链路补齐；严格对齐项目已有 Feign 规范；避免大范围改造上游调用链路。 |
-| [`code-backend-python-style`](../../code-backend-python-style/SKILL.md) | Python 代码编写、重构或评审 | 生成符合 PEP 8 与现代 Python 规范的高内聚代码，强调类型注解、结构化日志与最小改动。 | 严格保持最小必要修改原则；避免滥用元编程或过度抽象；优先就近直接返回。 |
-| [`code-front-react-style`](../../code-front-react-style/SKILL.md) | React 组件开发、改页面、补 hook、修交互 | 规范现代 React/Preact/Tailwind 开发，保证组件单一职责、生命周期清晰与严格的布局保真。 | 绝不破坏既有 UI 布局与样式层级；避免引入重型无用依赖；确保最小 Diff 交付。 |
+| [`code`](../../code/SKILL.md) | 统一代码工程风格总路由 | 规范各语言（Java、Python、React）及通用约束的统一调度与规范指引。 | 严格保持最小必要修改原则；默认英文注释；满足通用基线标准。 |
+| [`code-backend-common`](../../code/code-backend-common/SKILL.md) | 由其他编程技能隐式触发 | 后端基础通用规范：最小必要修改、简单方法设计、数据库建表/字段规范、严禁过度封装。 | 严禁借机顺手重构无关代码；禁止无意义透传重载；禁止裸 `Map` 传参；统一异常与返回。 |
+| [`code-backend-java-style`](../../code/code-backend-java-style/SKILL.md) | Java 后端代码生成、补全、修改或评审 | 规范 Spring Boot 架构分层：Controller 使用 `@Operation`，统一 `Result` 封装，DTO 强制分包解耦。 | Controller 只做调度校验，业务全在 Service；严禁 DTO 内部类；禁止危险全量 update 覆写。 |
+| [`code-backend-java-feign-style`](../../code/code-backend-java-feign-style/SKILL.md) | `接一个 Feign 接口`、`补 decoder`、`补 interceptor` | 规范 Java 项目基于 OpenFeign 的外部接口对接，标准化 DTO、编解码器与拦截器链路。 | 最小化链路补齐；严格对齐项目已有 Feign 规范；避免大范围改造上游调用链路。 |
+| [`code-backend-python-style`](../../code/code-backend-python-style/SKILL.md) | Python 代码编写、重构或评审 | 生成符合 PEP 8 与现代 Python 规范的高内聚代码，强调类型注解、结构化日志与最小改动。 | 严格保持最小必要修改原则；避免滥用元编程或过度抽象；优先就近直接返回。 |
+| [`code-front-react-style`](../../code/code-front-react-style/SKILL.md) | React 组件开发、改页面、补 hook、修交互 | 规范现代 React/Preact/Tailwind 开发，保证组件单一职责、生命周期清晰与严格的布局保真。 | 绝不破坏既有 UI 布局与样式层级；避免引入重型无用依赖；确保最小 Diff 交付。 |
 
 ### 3. 研发自动化与媒体工具
 
 | 技能名称 | 核心唤醒词 / 触发场景 | 核心功能与价值 | 关键安全卡点与边界约束 |
 | :--- | :--- | :--- | :--- |
-| [`tool`](../../tool/SKILL.md) | `调用工具-日报`、`调用工具-HTML转JPG`、`调用工具-项目指南`、`调用工具-优化README` | 一个工具 skill，根据具体需求选择四种内置能力。 | 按需读取对应能力说明；遵循各能力的适用范围与校验要求。 |
+| [`tool`](../../tool/SKILL.md) | `调用工具-日报`、`调用工具-HTML转JPG`、`调用工具-项目指南`、`调用工具-优化README`、`调用工具-归档prompt` | 一个工具 skill，根据具体需求选择内置能力。 | 按需读取对应能力说明，保护 Token 上下文，执行静默磁盘提示词记录与自动归档。 |
 
 先由“调用工具”唤醒 `tool`，再根据后续需求选择能力；连字符、空格或冒号均可分隔。
 
