@@ -77,17 +77,18 @@ The repository currently includes **9 production-ready skills** across three cor
 
 | Skill | Primary Triggers | Description & Core Value | Key Guardrails & Boundaries |
 | :--- | :--- | :--- | :--- |
-| [`code-backend-common`](code-backend-common/SKILL.md) | Invoked implicitly by other coding skills | Shared backend foundations: method simplicity, SQL schema standards, strict modification boundaries. | Forbids unrelated refactoring, wrapper-only overloads, raw `Map` usage, or untracked file additions. |
-| [`code-backend-java-style`](code-backend-java-style/SKILL.md) | Java backend generation, completion, review | Enforces Spring Boot layering: Controller `@Operation`, unified `Result`, DTO validations, JavaDoc. | Controller only routes; business logic lives in Service; DTOs separated without inner classes; no partial entity updates. |
-| [`code-backend-java-feign-style`](code-backend-java-feign-style/SKILL.md) | `接一个 Feign 接口`, `补 decoder`, `补 interceptor` | Standardizes declarative HTTP clients using OpenFeign with matched DTOs, decoders, and error handling. | Minimal integration diff; follows existing project Feign conventions without rewriting upstream clients. |
-| [`code-backend-python-style`](code-backend-python-style/SKILL.md) | Python code creation, refactoring, review | Generates idiomatic Python code with type hints, structured logging, and clean modular boundaries. | Produces minimal necessary changes; avoids unnecessary abstractions and framework bloat. |
-| [`code-front-react-style`](code-front-react-style/SKILL.md) | React components, hooks, signals, UI fixes | Enforces modern React/Tailwind best practices, component modularity, and strict layout preservation. | Preserves existing layout; avoids unnecessary CSS overrides; minimal diffs with clear state lifecycles. |
+| [`code`](code/SKILL.md) | Unified router for engineering styles | Master entry point directing agent to specialized language and framework rules. | Enforces minimal diffs, English comments, and common baseline standards. |
+| [`code-backend-common`](code/code-backend-common/SKILL.md) | Invoked implicitly by other coding skills | Shared backend foundations: method simplicity, SQL schema standards, strict modification boundaries. | Forbids unrelated refactoring, wrapper-only overloads, raw `Map` usage, or untracked file additions. |
+| [`code-backend-java-style`](code/code-backend-java-style/SKILL.md) | Java backend generation, completion, review | Enforces Spring Boot layering: Controller `@Operation`, unified `Result`, DTO validations, JavaDoc. | Controller only routes; business logic lives in Service; DTOs separated without inner classes; no partial entity updates. |
+| [`code-backend-java-feign-style`](code/code-backend-java-feign-style/SKILL.md) | `接一个 Feign 接口`, `补 decoder`, `补 interceptor` | Standardizes declarative HTTP clients using OpenFeign with matched DTOs, decoders, and error handling. | Minimal integration diff; follows existing project Feign conventions without rewriting upstream clients. |
+| [`code-backend-python-style`](code/code-backend-python-style/SKILL.md) | Python code creation, refactoring, review | Generates idiomatic Python code with type hints, structured logging, and clean modular boundaries. | Produces minimal necessary changes; avoids unnecessary abstractions and framework bloat. |
+| [`code-front-react-style`](code/code-front-react-style/SKILL.md) | React components, hooks, signals, UI fixes | Enforces modern React/Tailwind best practices, component modularity, and strict layout preservation. | Preserves existing layout; avoids unnecessary CSS overrides; minimal diffs with clear state lifecycles. |
 
 ### 3. Developer Tooling & Media Automation
 
 | Skill | Primary Triggers | Description & Core Value | Key Guardrails & Boundaries |
 | :--- | :--- | :--- | :--- |
-| [`tool`](tool/SKILL.md) | `调用工具-日报`, `调用工具-HTML转JPG`, `调用工具-项目指南`, `调用工具-优化README` | One tool skill that selects among four built-in capabilities based on the request. | Loads capability instructions on demand and follows their scope and validation rules. |
+| [`tool`](tool/SKILL.md) | `调用工具-日报`, `调用工具-HTML转JPG`, `调用工具-项目指南`, `调用工具-优化README`, `调用工具-归档prompt` | One tool skill that selects among built-in capabilities based on the request. | Loads capability instructions on demand, preserves token context, and enforces silent on-disk prompt recording. |
 
 `调用工具` activates `tool`; the following request selects the capability. A hyphen, space, or colon may separate them.
 
