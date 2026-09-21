@@ -87,3 +87,4 @@ update_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
 - 先理解现有文件风格，再补全或修改代码。排版风格必须与当前项目整体一致, 必须逐行对照项目现有排版
 - 输出默认到 `docs/output` 目录下, 并加上时间戳
 - 在满足 `.gitignore` 的前提下, 每次代码增删改，必须使用 `git add .`、`git add -A`自动添加生成后的代码文件
+- 必须满足单一数据源（DRY）原则
