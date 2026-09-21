@@ -20,6 +20,6 @@
    - success criteria
 9. 对应 skill 里面的所有内容， skill.md/代码以及其他所有的内容，都一次性同步修改
 10. 以上文件生成后，自动执行 git add，纳入git管理
-11. `SKILL.md` 不能包含重复的内容或重复的指令, 已经提过的, 后文就不要再重复提
-12. .prompt 目录下，用 {skill_name}.md 文件保存我给你的提示词原文; 后续修改使用{skill_name}_{hhmmss}.md 保存后续版本; 注意，具体的token/url需替换为xxx; 该文件不加入git管理
+11. User‑input prompts are saved whit execute `prompt-archiver` skill.
+12. .prompt 目录下，用 {skill_name}.md 文件保存我给你的提示词原文; 注意，具体的token/url需替换为xxx; 该文件不加入git管理
 13. 本项目下所有注释默认用英文
