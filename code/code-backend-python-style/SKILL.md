@@ -7,7 +7,7 @@ description: "当用户要生成、补全、修改或评审 Python 代码时触�
 必须按下面规则生成 Python 代码, 不能遗漏； 必须满足 skill `code-backend-common` 中的约定
 
 ## FastAPI 与接口代码
-- 框架使用 `fastapi`
+- api 框架使用 `fastapi`
 - 路由层只负责接收参数、调用 service 或核心逻辑、返回结果。api中禁止写任何方法实现, 新增接口保持函数命名清晰，参数和返回结构稳定
 - 具体业务判断、数据拼装、状态处理放在业务方法中。
 - 请求体、响应体满足 实体与请求对象 约束。
@@ -30,8 +30,7 @@ description: "当用户要生成、补全、修改或评审 Python 代码时触�
 ## 方法
 - 同一批业务只能放到 `core` 同一个文件内, API 路由只从一个 core 文件导入方法
 - Avoid passing complex expressions, chained calls, or request getters directly into method parameters. Extract method inputs into clearly named local variables first, then pass those variables to the method. This makes the business meaning of each parameter explicit, improves readability, and makes future validation, logging, debugging, and null checks easier.
-- 禁止使用 `async`/`await`
-- 如需 main 实现的, 不用单独写main()  而是直接写在if __name__ == "__main__":
+- 在 fastapi/flask 项目中， 禁止使用 `async`/`await`
 
 ## 包与模块
 项目按服务划分为不同的顶层 package，例如 `etf_assistant`。
@@ -58,6 +57,14 @@ etf_assistant/
 - 依赖文件中如果缺乏 `-i https://pypi.tuna.tsinghua.edu.cn/simple`, 自动补充
 - 禁止自动修改依赖文件名称
 - 执行测试时，应使用项目依赖，禁止使用全局 pip 污染全局依赖；没有项目环境时 使用临时环境 `/tmp/项目名/bin/python`，但是临时环境结束后要移除
+
+# pytest/python测试/main测试
+- 测试文件统一放在 `test` 下， 测试方法需要注释， 
+- 执行测试时，应使用项目依赖，禁止使用全局 pip 污染全局依赖；没有项目环境时 使用临时环境 `/tmp/项目名/bin/python`，但是临时环境结束后要移除
+- 如需 main 实现的, 不用单独写main()  而是直接写在if __name__ == "__main__":
+- 不要使用 `add_argument` 之类的命令行参数解析方式包装测试入参，直接使用普通变量。
+- **配置读取链路**： 实际的文件测试配置必须统一从 `test/.env.pytest` 读取, 包含本地私密信息（如真实端口、API Key、管理员密码），**严禁提交 Git**，必须保持在 `.gitignore` 中。仅提交脱敏的配置文件模板 `test/config.example`。
+
 
 ## 配置项约束
 - 新增的配置项，放到 `config/settings.py` 中, 比如 `POSTGRES_URL = env.get("POSTGRES_URL")`, 不需要默认值；新增的具体配置, 直接在 terminal 日志中打印新增 key 和建议值, 比如 `POSTGRES_URL=xxx`
