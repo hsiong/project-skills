@@ -28,7 +28,7 @@
 + User‑input prompts are saved whit execute `prompt-archiver` skill.
 + Automatically run git add for newly added eligible files
 + Files containing any confidential information — including specific project details, certificate numbers, Unified Social Credit Codes, personal names, ID numbers, secret keys, residential addresses, images, Word documents, domain names and IP addresses — are strictly prohibited from being committed to Git.
-+ Any confidential information in source code shall be configured as independent configuration items (and must also not be committed to Git). Hard-coding such information into source code and committing it to Git alongside the code is strictly forbidden.
++ Any confidential information — including specific project details, certificate numbers, Unified Social Credit Codes, personal names, ID numbers, secret keys, residential addresses, images, Word documents, domain names, IP addresses/ports, and ANY other sensitive details beyond the above — is strictly prohibited from being committed to Git.
 + You must not read or edit: `*/application.yml`, `*/application-*.yml` (except `*/application-example.yml`), `*/.fastRequest/*`, `*/.mvn/*`, `*/.idea/*`, `*/.antigravity/*`, `*/.vscode/*`, `*/.git/*`, `config/.env.*` (except `.env.example`), and `*/.DS_Store`.
 + skill dir： `agent_skills`
 + Python dependencies must be installed into the current project environment (typically `.venv`). Installation to the global Python environment is forbidden. 
